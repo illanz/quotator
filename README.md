@@ -12,6 +12,7 @@ Le cadrage du projet vit dans [`docs/`](docs/) :
 | [`01-conversion.md`](docs/01-conversion.md) | Cycle de vie du devis, séquence de relance, copy des mails |
 | [`02-migration-clients.md`](docs/02-migration-clients.md) | Analyse des 7 551 fiches clients et plan de reprise |
 | [`03-idees.md`](docs/03-idees.md) | Fonctions à considérer, issues des pratiques CRM et B2B |
+| [`04-track-record.md`](docs/04-track-record.md) | Historique commercial reconstruit : méthode, chiffres, usages |
 
 ## Démarrer
 
@@ -47,6 +48,10 @@ src/tarifs/               Grille tarifaire
 src/pricing/              Moteur de prix
   engine.ts               Calcul d'un devis complet
   frais.ts                Frais de déplacement
+src/trackrecord/          Historique commercial
+  animations.ts           Identification de l'animation d'une ligne de facture
+  secteurs.ts             Classement sectoriel des clients
+scripts/                  Import et statistiques de l'historique
 src/app/                  Interface Next.js
   tarifs/                 Consultation de la grille en vigueur
   tarifs/import/          Téléversement, écarts, validation
