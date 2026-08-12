@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { identifierAnimation } from "./animations";
-import { classerSecteur, estIntermediaire } from "./secteurs";
+import { MARQUEUR_TARIF_AGENCE, classerSecteur, estIntermediaire } from "./secteurs";
 
 describe("identifierAnimation", () => {
   it("reconnait une animation sous ses differentes ecritures", () => {
@@ -73,9 +73,27 @@ describe("classerSecteur", () => {
     expect(estIntermediaire(classerSecteur("MCI GROUP FRANCE").secteur)).toBe(true);
   });
 
+  it("classe les enseignes connues, que leur nom ne trahit pas", () => {
+    expect(classerSecteur("UBISOFT").secteur).toBe("Tech, numérique, télécom");
+    expect(classerSecteur("LAFARGE SA").secteur).toBe("Industrie, énergie");
+    expect(classerSecteur("CHATEAUFORM' FRANCE").secteur).toBe("Lieu partenaire");
+  });
+
   it("avoue son ignorance plutot que de ranger au hasard", () => {
+    // « Sagarmatha » est une agence, mais rien dans son nom ne le dit : c'est
+    // la mention de tarif agence sur ses factures qui le revele, pas le nom.
     const r = classerSecteur("SAGARMATHA");
     expect(r.secteur).toBe("Non classé");
     expect(r.automatique).toBe(false);
+  });
+
+  it("reconnait la mention de tarif agence sous ses formes reelles", () => {
+    const formes = [
+      "Animation Team Building / 6 Novembre 2013 / 300 pax / Tarification Agences",
+      "Animation Libre Acces / 2 Decembre 2022 / Remise 10% incluse, reservee aux agences",
+      "Remise agence appliquee",
+    ];
+    for (const f of formes) expect(MARQUEUR_TARIF_AGENCE.test(f)).toBe(true);
+    expect(MARQUEUR_TARIF_AGENCE.test("Animation Team Building / 30 Pax / Paris")).toBe(false);
   });
 });

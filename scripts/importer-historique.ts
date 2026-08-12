@@ -10,7 +10,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { prisma } from "../src/lib/prisma.ts";
 import { identifierAnimation } from "../src/trackrecord/animations.ts";
-import { classerSecteur } from "../src/trackrecord/secteurs.ts";
+import { MARQUEUR_TARIF_AGENCE, classerSecteur } from "../src/trackrecord/secteurs.ts";
 
 type LigneFacture = {
   title: string | null;
@@ -51,6 +51,10 @@ function lire<T>(dossier: string): T[] {
   return readdirSync(dossier)
     .filter((f) => f.endsWith(".json"))
     .map((f) => JSON.parse(readFileSync(join(dossier, f), "utf8")) as T);
+}
+
+function sansAccents(texte: string): string {
+  return texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 function sansBalises(texte: string | null): string {
@@ -106,22 +110,24 @@ const facturesParClient = new Map<number, number>();
 for (const f of factures) {
   caParClient.set(f.customer_id, (caParClient.get(f.customer_id) ?? 0) + cents(f.total));
   facturesParClient.set(f.customer_id, (facturesParClient.get(f.customer_id) ?? 0) + 1);
-  const blob = f.items.map((i) => sansBalises(i.title)).join(" ").toLowerCase();
-  if (/tarification agence|tarif agence/.test(blob)) {
+  const blob = sansAccents(f.items.map((i) => sansBalises(i.title)).join(" "));
+  if (MARQUEUR_TARIF_AGENCE.test(blob)) {
     mentionsAgence.set(f.customer_id, (mentionsAgence.get(f.customer_id) ?? 0) + 1);
   }
 }
 
 /**
- * Une agence se reconnait a son nom, ou au fait qu'elle achete a un tarif
- * agence de facon repetee. Un client final qui a beneficie une fois d'un tarif
- * exceptionnel ne doit pas basculer dans cette categorie.
+ * Une agence se reconnait a son nom, ou a la mention « reservee aux agences »
+ * portee sur ses propres factures.
+ *
+ * Cette mention est explicite : elle designe un tarif reserve aux
+ * intermediaires. Une seule occurrence suffit donc, la ou deviner d'apres le
+ * nom serait hasardeux — la plupart des agences evenementielles francaises
+ * portent un nom qui ne dit pas leur metier.
  */
 function estAgence(nom: string, id: number): boolean {
   if (classerSecteur(nom).secteur === "Agence événementielle") return true;
-  const mentions = mentionsAgence.get(id) ?? 0;
-  const total = facturesParClient.get(id) ?? 0;
-  return mentions >= 2 && mentions / total >= 0.25;
+  return (mentionsAgence.get(id) ?? 0) >= 1;
 }
 
 console.log("Reconstruction des organisations…");
@@ -194,7 +200,7 @@ for (const [cle, groupe] of groupes) {
     for (const ligne of f.items) {
       const texte = sansBalises(ligne.title);
       if (ligne.style === "title" && texte && !titre) titre = texte;
-      if (/tarification agence|tarif agence/i.test(texte)) viaAgence = true;
+      if (MARQUEUR_TARIF_AGENCE.test(sansAccents(texte))) viaAgence = true;
       if (ligne.style !== null || Number(ligne.unit_price) <= 0) continue;
 
       const identification = identifierAnimation(ligne.title ?? "");

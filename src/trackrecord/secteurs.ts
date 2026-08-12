@@ -16,6 +16,7 @@
 
 export type Secteur =
   | "Agence événementielle"
+  | "Lieu partenaire"
   | "Banque, assurance, finance"
   | "Santé, pharmacie"
   | "Industrie, énergie"
@@ -45,7 +46,7 @@ const REGLES: Regle[] = [
   {
     secteur: "Agence événementielle",
     motifs:
-      /\bagence\b|\bevent|\bmice\b|incentive|seminaire|receptif|dmc\b|traiteur|voyages? d'affaires|business travel|\btravel\b|congres|convention|roadshow|team ?building|animation|production evenement|mci group|publicis event|cwt|hogg robinson|carlson wagonlit|ideal meetings|funbooker|lever de rideau|novabox|creative spirit|wmh project|capdel|one experience|7eme sud|awakit|agora voyages|mktg|digital day|gp explorer|egg\b/i,
+      /\bagence\b|\bevent|\bmice\b|incentive|seminaire|receptif|dmc\b|traiteur|voyages? d'affaires|business travel|\btravel\b|congres|convention|roadshow|team ?building|animation|evenement|evenementiel|\\bmeeting\\b|\\bprod\\b|production evenement|mci group|publicis event|cwt|hogg robinson|carlson wagonlit|ideal meetings|funbooker|lever de rideau|novabox|creative spirit|wmh project|capdel|one experience|7eme sud|awakit|agora voyages|mktg|digital day|gp explorer|egg\b/i,
   },
   {
     secteur: "Média, publicité, communication",
@@ -124,6 +125,125 @@ const REGLES: Regle[] = [
   },
 ];
 
+/**
+ * Enseignes reconnues, classees explicitement.
+ *
+ * Cette liste n'accueille que ce qui est su, jamais ce qui est suppose. Les
+ * agences aux noms opaques — Sagarmatha, Oh Yes, Roadbook — n'y figurent pas :
+ * elles sont reperees par la mention de tarification agence portee sur leurs
+ * propres factures, ou restent a classer.
+ *
+ * Aucune regle de mots-cles ne devinera qu'« Ubisoft » est une entreprise de
+ * jeu video ou que « Sagarmatha » est une agence evenementielle. Ces noms sont
+ * donc listes, sur la base de ce que montre l'historique de facturation.
+ *
+ * Le rapprochement se fait sur le nom normalise complet ou son debut, jamais
+ * par inclusion : « SIMPLE » ne doit pas attraper « SIMPLEXITY ».
+ */
+const ENSEIGNES: Array<[string, Secteur]> = [
+  // Agences evenementielles et prestataires intermediaires
+  ["auditoire", "Agence événementielle"],
+  ["epoka", "Agence événementielle"],
+  ["hopscotch", "Agence événementielle"],
+  ["comexposium", "Agence événementielle"],
+  ["banks sadler", "Agence événementielle"],
+  ["la fonderie", "Agence événementielle"],
+
+  // Lieux partenaires
+  ["chateauform", "Lieu partenaire"],
+  ["nouveau chalet du lac", "Lieu partenaire"],
+  ["le pavillon d armenonville", "Lieu partenaire"],
+  ["pavillon d armenonville", "Lieu partenaire"],
+
+  // Tech et numerique
+  ["ubisoft", "Tech, numérique, télécom"],
+  ["prestashop", "Tech, numérique, télécom"],
+  ["kaspersky", "Tech, numérique, télécom"],
+  ["stordata", "Tech, numérique, télécom"],
+  ["comuto", "Tech, numérique, télécom"],
+  ["intescia", "Tech, numérique, télécom"],
+  ["wivetix", "Tech, numérique, télécom"],
+  ["syloa", "Tech, numérique, télécom"],
+  ["agap2", "Tech, numérique, télécom"],
+  ["altran", "Tech, numérique, télécom"],
+  ["gva", "Tech, numérique, télécom"],
+  ["delta process", "Tech, numérique, télécom"],
+
+  // Industrie et energie
+  ["lafarge", "Industrie, énergie"],
+  ["imerys", "Industrie, énergie"],
+  ["hilti", "Industrie, énergie"],
+  ["manitou", "Industrie, énergie"],
+  ["goodyear", "Industrie, énergie"],
+  ["raja", "Industrie, énergie"],
+  ["phoenix contact", "Industrie, énergie"],
+  ["saipem", "Industrie, énergie"],
+  ["derichebourg", "Industrie, énergie"],
+  ["ppg france", "Industrie, énergie"],
+  ["jt international", "Industrie, énergie"],
+  ["raboni", "Industrie, énergie"],
+  ["groupe lemoine", "Industrie, énergie"],
+  ["lassarat", "Industrie, énergie"],
+  ["erdf", "Industrie, énergie"],
+  ["enedis", "Industrie, énergie"],
+  ["dalkia", "Industrie, énergie"],
+  ["areva", "Industrie, énergie"],
+  ["andra", "Industrie, énergie"],
+  ["enertrag", "Industrie, énergie"],
+  ["amplitude laser", "Industrie, énergie"],
+  ["white birch", "Industrie, énergie"],
+  ["scael", "Industrie, énergie"],
+
+  // Banque, assurance, finance
+  ["boursorama", "Banque, assurance, finance"],
+  ["transactis", "Banque, assurance, finance"],
+  ["rsa luxembourg", "Banque, assurance, finance"],
+  ["willis towers watson", "Banque, assurance, finance"],
+  ["humanis", "Banque, assurance, finance"],
+  ["gie humanis", "Banque, assurance, finance"],
+  ["renee costes", "Banque, assurance, finance"],
+  ["terre invest", "Banque, assurance, finance"],
+  ["athlon car lease", "Automobile"],
+
+  // Sante
+  ["biocodex", "Santé, pharmacie"],
+  ["gedeon richter", "Santé, pharmacie"],
+  ["diaconesses", "Santé, pharmacie"],
+  ["mgen", "Santé, pharmacie"],
+  ["gie imsa", "Santé, pharmacie"],
+
+  // Conseil et etudes
+  ["ekimetrics", "Conseil, audit, juridique"],
+  ["kantar", "Conseil, audit, juridique"],
+  ["optimind", "Conseil, audit, juridique"],
+  ["epsa", "Conseil, audit, juridique"],
+  ["db&a", "Conseil, audit, juridique"],
+  ["groupe tgs", "Conseil, audit, juridique"],
+  ["catalina marketing", "Conseil, audit, juridique"],
+  ["csbl", "Conseil, audit, juridique"],
+
+  // Distribution et grande conso
+  ["printemps", "Distribution, grande conso"],
+  ["scamark", "Distribution, grande conso"],
+  ["animalis", "Distribution, grande conso"],
+  ["compagnie des fromages", "Distribution, grande conso"],
+  ["home shopping service", "Distribution, grande conso"],
+  ["oeuf cocotte", "Distribution, grande conso"],
+
+  // Secteur public
+  ["sipperec", "Secteur public, collectivité"],
+  ["anfh", "Secteur public, collectivité"],
+  ["autorite des marches financiers", "Secteur public, collectivité"],
+  ["eppdcsi", "Secteur public, collectivité"],
+  ["service facturier cnam", "Secteur public, collectivité"],
+  ["cnam", "Secteur public, collectivité"],
+
+  // Transport et voyage
+  ["joubert voyages", "Transport, logistique"],
+  ["voyages emile weber", "Transport, logistique"],
+  ["aftral", "Éducation, formation"],
+];
+
 /** Normalise une raison sociale pour la comparaison. */
 function normaliser(nom: string): string {
   return nom
@@ -132,6 +252,14 @@ function normaliser(nom: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9&']+/g, " ")
     .trim();
+}
+
+/**
+ * Cle de comparaison d'une enseigne : la ponctuation varie d'une saisie a
+ * l'autre (« Chateauform' France », « S'CAPE EVENEMENTS »), pas l'identite.
+ */
+function cleEnseigne(nom: string): string {
+  return nom.replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
 }
 
 export type ClassementSecteur = {
@@ -143,13 +271,41 @@ export type ClassementSecteur = {
 export function classerSecteur(raisonSociale: string | null | undefined): ClassementSecteur {
   if (!raisonSociale) return { secteur: "Non classé", automatique: false };
   const nom = normaliser(raisonSociale);
+
+  // Les enseignes connues priment : elles sont classees a la main, sur la foi
+  // de l'historique, et n'ont pas a subir l'approximation d'un mot-cle.
+  const cle = cleEnseigne(nom);
+  for (const [enseigne, secteur] of ENSEIGNES) {
+    const attendu = cleEnseigne(enseigne);
+    if (cle === attendu || cle.startsWith(`${attendu} `)) {
+      return { secteur, automatique: true };
+    }
+    // « GH DIACONESSES CROIX SAINT SIMON » : l'enseigne n'ouvre pas toujours la
+    // raison sociale. La recherche en position libre n'est autorisee que pour
+    // les noms assez longs pour ne pas se confondre avec un mot courant.
+    if (attendu.length >= 8 && new RegExp(`\\b${attendu}\\b`).test(cle)) {
+      return { secteur, automatique: true };
+    }
+  }
+
   for (const regle of REGLES) {
     if (regle.motifs.test(nom)) return { secteur: regle.secteur, automatique: true };
   }
   return { secteur: "Non classé", automatique: false };
 }
 
+/**
+ * Mention portee sur les devis vendus a tarif agence.
+ *
+ * C'est le marqueur le plus fiable dont dispose l'historique : il vient de la
+ * facturation elle-meme, pas d'une interpretation du nom. Il figure le plus
+ * souvent dans la ligne de titre de l'evenement, sous la forme « Remise 10 %
+ * incluse, reservee aux agences » ou « Tarification Agences ».
+ */
+export const MARQUEUR_TARIF_AGENCE =
+  /tarification\s+agence|tarif\s+agence|reserv\w*\s+aux\s+agences|remise\s+agence/i;
+
 /** Un secteur qui ne dit rien du metier du client final. */
 export function estIntermediaire(secteur: Secteur): boolean {
-  return secteur === "Agence événementielle";
+  return secteur === "Agence événementielle" || secteur === "Lieu partenaire";
 }

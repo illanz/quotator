@@ -41,23 +41,43 @@ Le rapprochement se fait par alias, avec deux garde-fous :
 
 L'export ne porte aucune information de secteur, et 90 % des clients facturés
 n'ont pas de SIRET exploitable : l'annuaire des entreprises ne peut pas être
-interrogé pour la plupart d'entre eux. Le classement se fait donc par mots-clés
-sur la raison sociale.
+interrogé pour la plupart d'entre eux.
 
-Pour les agences, la donnée offre un signal bien meilleur que le nom : la
-**mention d'une tarification agence** sur les factures. Elle identifie 339
-clients représentant 44 % du chiffre d'affaires, là où les noms d'agences
-événementielles françaises — Auditoire, Epoka, Roadbook, Oh Yes, Sagarmatha —
-ne portent aucun mot-clé exploitable.
+Le classement combine trois sources, par ordre de fiabilité décroissante.
+
+**1. La mention de tarif agence, portée par la facturation elle-même.** Les
+devis vendus à un intermédiaire portent « Remise 10 % incluse, réservée aux
+agences » ou « Tarification Agences ». C'est une preuve, pas une interprétation :
+elle identifie **358 clients, 49 % du chiffre d'affaires**. Sans elle, la moitié
+de l'activité serait mal attribuée, car les agences événementielles françaises —
+Sagarmatha, Auditoire, Epoka, Roadbook, Oh Yes, 3P1C — portent des noms qui ne
+disent rien de leur métier.
+
+**2. Un dictionnaire d'enseignes reconnues.** Aucune règle ne devinera qu'Ubisoft
+fait du jeu vidéo ou que Chateauform' est un lieu partenaire. Ces noms sont donc
+listés explicitement. Le dictionnaire n'accueille que ce qui est su, jamais ce
+qui est supposé : les noms opaques — SWAN, JAM, HELP, OZONEX — en sont absents,
+même quand le contexte suggère une agence.
+
+**3. Des règles de mots-clés** sur la raison sociale, pour les cas évidents
+(« MAIRIE DE », « BANQUE », « PHARMA », « AGENCE »).
+
+Une catégorie **Lieu partenaire** complète le dispositif : Chateauform', le
+Pavillon d'Armenonville et le Chalet du Lac apportent de l'affaire comme les
+agences, et leur secteur ne dit rien du client final.
 
 ## 2. Ce que la donnée dit
 
 ### Répartition
 
-| | Événements | CA HT |
-|---|---|---|
-| Clients directs | 1 866 | 5 803 558 € |
-| Agences | 619 | 2 468 467 € |
+| | Clients | Événements | CA HT | Part |
+|---|---|---|---|---|
+| Intermédiaires (agences, lieux) | 358 | 1 062 | 4 032 208 € | 49 % |
+| Clients directs classés | 406 | 775 | 2 729 679 € | 33 % |
+| Clients directs non classés | 502 | 648 | 1 510 138 € | 18 % |
+
+**La moitié de l'activité passe par des intermédiaires.** C'est le fait le plus
+structurant de l'historique, et il était invisible avant cette reconstruction.
 
 Panier moyen : **3 329 €**. Le pic d'activité est 2022 (930 k€), le pic de
 volume 2021 (361 événements, panier de 1 969 € — l'année du distanciel).
@@ -82,14 +102,28 @@ volume 2021 (361 événements, panier de 1 969 € — l'année du distanciel).
 Clients directs uniquement — c'est la table qui alimente l'argument de
 réassurance dans les relances.
 
-| Secteur | Événements | Clients | Top 3 |
+| Secteur | Clients | Événements | CA HT |
 |---|---|---|---|
-| Banque, assurance, finance | 207 | 89 | Doublage (20), Home Cooking (19), Mini U (13) |
-| Tech, numérique, télécom | 83 | 48 | Mad Burger (9), Quiz Race (9), Escape Game Visio (7) |
-| Conseil, audit, juridique | 74 | 30 | Home Challenge (11), Escape Game Visio (10), Graffiti (7) |
-| Média, publicité | 39 | 18 | Boîte à Questions (6), Mini U (5), GraffWall (3) |
-| Industrie, énergie | 38 | 21 | Mini U (8), Fresque (3), Réalité virtuelle (3) |
-| Immobilier, construction | 33 | 21 | Mini U (5), Réalité virtuelle (5), Team Haka (4) |
+| Banque, assurance, finance | 93 | 222 | 753 516 € |
+| Tech, numérique, télécom | 57 | 106 | 380 423 € |
+| Industrie, énergie | 41 | 79 | 379 636 € |
+| Conseil, audit, juridique | 38 | 83 | 279 330 € |
+| Distribution, grande conso | 19 | 34 | 152 370 € |
+| Secteur public, collectivité | 23 | 33 | 138 691 € |
+| Santé, pharmacie | 27 | 45 | 127 466 € |
+| Éducation, formation | 16 | 30 | 104 999 € |
+| Transport, logistique | 19 | 29 | 98 800 € |
+
+Et ce que chaque secteur achète — la table qui alimente l'argument de
+réassurance :
+
+| Secteur | Top 3 |
+|---|---|
+| Banque, assurance, finance | Doublage (20), Home Cooking (19), Mini U (13) |
+| Tech, numérique, télécom | Mad Burger (9), Quiz Race (9), Escape Game Visio (7) |
+| Conseil, audit, juridique | Home Challenge (11), Escape Game Visio (10), Graffiti (7) |
+| Industrie, énergie | Mini U (8), Fresque (3), Réalité virtuelle (3) |
+| Immobilier, construction | Mini U (5), Réalité virtuelle (5), Team Haka (4) |
 
 La banque et l'assurance sont, de loin, le premier secteur : 207 événements et
 693 k€ pour 89 clients.
@@ -121,9 +155,10 @@ Deux pics — novembre-décembre et janvier — et deux creux nets, août et fé
 
 ## 3. Limites, énoncées franchement
 
-- **45 % du CA direct reste non classé sectoriellement** (768 clients,
-  3,7 M€). Classer à la main les 200 plus gros couvrirait 60 % de ce montant,
-  les 300 plus gros 73 %. C'est quelques heures de travail, à faire une fois.
+- **18 % du chiffre d'affaires reste non classé** (502 clients, 1,51 M€), contre
+  47 % avant l'affinage. Le reliquat est une vraie longue traîne : les 100 plus
+  gros ne pèsent que 8 % du CA total, les 200 plus gros 12 %. Trois voies pour le
+  réduire, décrites au § 6.
 - **Les dates sont des dates de facture, pas des dates d'événement.** L'écart
   est de quelques semaines : la saisonnalité est fiable en tendance, pas au jour
   près. La date réelle figure dans la ligne de titre et pourra être extraite plus
@@ -211,3 +246,38 @@ l'activité.
 Deux compléments utiles au même moment : la **date réelle de l'événement**
 comme donnée à part entière, et le **nombre de participants**, aujourd'hui
 enfouis dans une ligne de titre en texte libre.
+
+## 6. Réduire encore le « non classé »
+
+Le reliquat représente 502 clients et 1,51 M€. Trois leviers, du plus durable au
+plus artisanal.
+
+### 6.1 Interroger l'annuaire des entreprises — la vraie solution
+
+L'API publique de recherche d'entreprises accepte une **raison sociale**, pas
+seulement un SIRET, et renvoie le code APE officiel. Une table de correspondance
+APE → secteur classerait automatiquement la majorité des 502 clients restants,
+sans supposition et avec une source faisant autorité.
+
+Cette API n'est pas joignable depuis l'environnement de développement utilisé ici
+— le réseau y est restreint — mais elle le sera depuis l'application. C'est à
+prévoir au moment de la migration des clients (`02-migration-clients.md`), qui
+prévoit déjà un enrichissement par SIRET : les deux se font en un seul passage.
+
+Effet attendu : le classement devient une donnée officielle, mise à jour, et
+non plus une heuristique.
+
+### 6.2 Un écran de classement manuel
+
+Il restera toujours des cas — sociétés dissoutes, noms tronqués, filiales
+étrangères. Un écran listant les clients à classer par chiffre d'affaires
+décroissant, avec le secteur proposé et les animations déjà vendues comme
+contexte, permet d'en traiter beaucoup en peu de temps. Chaque décision est
+enregistrée, marquée comme manuelle, et ne sera plus jamais écrasée par le
+classement automatique.
+
+### 6.3 Saisir le secteur à la création du client
+
+Pour l'avenir, le problème ne doit pas se reposer : le secteur devient un champ
+de la fiche client, proposé automatiquement et confirmé par le commercial au
+premier devis. Le coût est de trois secondes, une fois par client.
