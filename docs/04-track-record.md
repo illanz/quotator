@@ -99,8 +99,7 @@ volume 2021 (361 événements, panier de 1 969 € — l'année du distanciel).
 
 ### Ce que chaque secteur achète
 
-Clients directs uniquement — c'est la table qui alimente l'argument de
-réassurance dans les relances.
+Clients directs uniquement — les intermédiaires en sont exclus.
 
 | Secteur | Clients | Événements | CA HT |
 |---|---|---|---|
@@ -114,8 +113,8 @@ réassurance dans les relances.
 | Éducation, formation | 16 | 30 | 104 999 € |
 | Transport, logistique | 19 | 29 | 98 800 € |
 
-Et ce que chaque secteur achète — la table qui alimente l'argument de
-réassurance :
+Et ce qu'il achète — la table qui alimente l'argument de réassurance dans les
+relances :
 
 | Secteur | Top 3 |
 |---|---|
@@ -125,8 +124,8 @@ réassurance :
 | Industrie, énergie | Mini U (8), Fresque (3), Réalité virtuelle (3) |
 | Immobilier, construction | Mini U (5), Réalité virtuelle (5), Team Haka (4) |
 
-La banque et l'assurance sont, de loin, le premier secteur : 207 événements et
-693 k€ pour 89 clients.
+La banque et l'assurance sont, de loin, le premier secteur : 222 événements et
+754 k€ pour 93 clients — le double du suivant.
 
 ### Fidélité
 
@@ -165,9 +164,9 @@ Deux pics — novembre-décembre et janvier — et deux creux nets, août et fé
   finement.
 - **17 % des événements n'ont aucune animation identifiée** : essentiellement
   des prestations sur mesure et des animations disparues du catalogue.
-- **Pour les 619 événements passés par une agence, le client final est
-  inconnu.** C'est la principale perte d'information, et elle est irréversible
-  sur l'historique.
+- **Pour les 1 062 événements passés par un intermédiaire — la moitié de
+  l'activité — le client final est inconnu.** C'est la principale perte
+  d'information, et elle est irréversible sur l'historique.
 
 ## 4. Valoriser cette donnée
 
@@ -225,7 +224,8 @@ volumes, pas sur une impression.
 
 ### 4.8 Mesurer ce que rapporte le canal agence
 
-619 événements et 2,47 M€ passent par des agences, souvent à tarif remisé. La
+1 062 événements et 4,03 M€ passent par des intermédiaires, souvent à tarif
+remisé — la moitié de l'activité. La
 base permet de comparer la valeur vie d'un client direct et celle d'une agence,
 et de décider où porter l'effort commercial.
 
