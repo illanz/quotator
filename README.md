@@ -11,6 +11,7 @@ Le cadrage du projet vit dans [`docs/`](docs/) :
 | [`00-cadrage.md`](docs/00-cadrage.md) | Décisions prises, règles extraites des sources, questions ouvertes par jalon |
 | [`01-conversion.md`](docs/01-conversion.md) | Cycle de vie du devis, séquence de relance, copy des mails |
 | [`02-migration-clients.md`](docs/02-migration-clients.md) | Analyse des 7 551 fiches clients et plan de reprise |
+| [`03-idees.md`](docs/03-idees.md) | Fonctions à considérer, issues des pratiques CRM et B2B |
 
 ## Démarrer
 
@@ -30,7 +31,8 @@ npm test               # la suite tourne sans base de données
 
 ## Ce qui est construit
 
-Le socle : modèle de données, import de la grille tarifaire, moteur de prix.
+Le socle — modèle de données, import de la grille tarifaire, moteur de prix — et
+l'écran d'import avec validation des écarts.
 
 ```
 prisma/schema.prisma      Modèle de données
@@ -45,6 +47,9 @@ src/tarifs/               Grille tarifaire
 src/pricing/              Moteur de prix
   engine.ts               Calcul d'un devis complet
   frais.ts                Frais de déplacement
+src/app/                  Interface Next.js
+  tarifs/                 Consultation de la grille en vigueur
+  tarifs/import/          Téléversement, écarts, validation
 fixtures/                 Grille 2026, utilisée par les tests
 ```
 
