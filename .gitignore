@@ -6,3 +6,4 @@ dist/
 .env.local
 .DS_Store
 e2e-tmp.mjs
+scripts/_*.ts

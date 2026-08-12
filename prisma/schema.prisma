@@ -74,9 +74,18 @@ model Organisation {
   mere   Organisation?  @relation("Filiales", fields: [mereId], references: [id])
   filles Organisation[] @relation("Filiales")
 
+  /// Secteur d'activite, deduit de la raison sociale puis corrige a la main.
+  secteur     String?
+  /// Vrai tant que le secteur vient du classement automatique.
+  secteurAuto Boolean @default(true)
+  /// Intermediaire commandant pour un client final : son secteur n'a pas de
+  /// valeur d'argument aupres d'un prospect.
+  estAgence   Boolean @default(false)
+
   etablissements Etablissement[]
   contacts       Contact[]
   devis          Devis[]
+  evenements     Evenement[]
 
   creeLe     DateTime @default(now())
   modifieLe  DateTime @updatedAt
@@ -453,4 +462,59 @@ model Parametres {
   emailCCI        String?
 
   modifieLe DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------- Track record
+
+/// Un evenement realise : la maille de l'historique commercial.
+///
+/// Une prestation donne lieu a plusieurs factures — un acompte, puis le solde —
+/// qui se completent. Compter les factures compterait deux fois le meme
+/// evenement et fausserait autant les volumes que les montants : la maille est
+/// donc le devis d'origine, qui les regroupe.
+model Evenement {
+  id String @id @default(cuid())
+
+  /// Devis facturation.pro qui relie les factures d'une meme prestation.
+  referenceDevisFP Int?    @unique
+  /// Facture d'origine, quand l'evenement n'est rattache a aucun devis.
+  referenceFactureFP Int?  @unique
+
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  /// Date civile de la facturation (`YYYY-MM-DD`).
+  date  String
+  annee Int
+
+  /// Ligne de titre du devis, quand elle existe : porte souvent lieu et jauge.
+  titre String?
+  ville String?
+  pax   Int?
+
+  caHTCents  Int @default(0)
+  nbFactures Int @default(1)
+
+  /// Vrai quand la facturation porte la mention d'une tarification agence.
+  viaAgence Boolean @default(false)
+
+  animations EvenementAnimation[]
+
+  @@index([annee])
+  @@index([organisationId])
+}
+
+/// Animation reconnue sur les lignes de facture d'un evenement.
+model EvenementAnimation {
+  id          String    @id @default(cuid())
+  evenementId String
+  evenement   Evenement @relation(fields: [evenementId], references: [id], onDelete: Cascade)
+
+  cle          String
+  nom          String
+  famille      String
+  montantCents Int    @default(0)
+
+  @@index([cle])
+  @@index([famille])
 }
