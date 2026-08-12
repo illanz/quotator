@@ -1,0 +1,456 @@
+// Modele de donnees Quotator.
+//
+// Trois partis pris structurent ce schema :
+//
+// 1. Les montants sont des entiers de centimes, jamais des flottants.
+// 2. La grille tarifaire est versionnee : un devis de 2026 doit rester
+//    relisible avec les prix de 2026, meme apres l'import du millesime suivant.
+// 3. Ce que facturation.pro melange dans une fiche client unique est separe en
+//    Organisation / Etablissement / Contact, pour garder les trois Societe
+//    Generale de la base sans les confondre.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------- Utilisateurs
+
+enum Role {
+  ADMIN // grille, catalogue, parametres
+  COMMERCIAL // devis
+}
+
+model Utilisateur {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  nom       String
+  telephone String?
+  role      Role     @default(COMMERCIAL)
+  actif     Boolean  @default(true)
+  creeLe    DateTime @default(now())
+
+  devis          Devis[]
+  importsGrille  ImportGrille[]
+  evenementsFait DevisEvenement[]
+}
+
+// ------------------------------------------------------------------- Clientele
+
+enum TypeOrganisation {
+  CLIENT_DIRECT
+  AGENCE
+  REVENDEUR
+  COLLECTIVITE
+  ASSOCIATION
+}
+
+/// Une societe. Les etablissements d'un meme groupe se rattachent a une mere
+/// commune plutot que d'etre fusionnes : « SOCIETE GENERALE » a 94120, 67000 et
+/// 75886 sont trois entites reelles.
+model Organisation {
+  id        String           @id @default(cuid())
+  nom       String
+  /// Nom normalise, cle de rapprochement et de detection de doublons.
+  nomCle    String
+  type      TypeOrganisation @default(CLIENT_DIRECT)
+  siren     String?
+  numeroTVA String?
+  siteWeb   String?
+  notes     String?
+
+  /// Identifiant de la fiche d'origine dans facturation.pro, conserve pour la
+  /// tracabilite vers l'historique comptable.
+  referenceFP Int? @unique
+
+  /// Faux pour les fiches jamais facturees et sans activite recente : elles
+  /// restent consultables mais sortent de la recherche par defaut.
+  active Boolean @default(true)
+
+  mereId String?
+  mere   Organisation?  @relation("Filiales", fields: [mereId], references: [id])
+  filles Organisation[] @relation("Filiales")
+
+  etablissements Etablissement[]
+  contacts       Contact[]
+  devis          Devis[]
+
+  creeLe     DateTime @default(now())
+  modifieLe  DateTime @updatedAt
+
+  @@index([nomCle])
+  @@index([active])
+}
+
+model Etablissement {
+  id             String  @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  libelle    String?
+  adresse    String?
+  codePostal String?
+  ville      String?
+  pays       String  @default("FR")
+  siret      String?
+  principal  Boolean @default(false)
+
+  contacts Contact[]
+  devis    Devis[]
+
+  @@index([organisationId])
+  @@index([codePostal])
+}
+
+model Contact {
+  id             String        @id @default(cuid())
+  organisationId String
+  organisation   Organisation  @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  etablissementId String?
+  etablissement  Etablissement? @relation(fields: [etablissementId], references: [id])
+
+  civilite  String?
+  prenom    String?
+  nom       String?
+  email     String?
+  telephone String?
+  mobile    String?
+  fonction  String?
+
+  devis Devis[]
+
+  creeLe DateTime @default(now())
+
+  @@index([organisationId])
+  @@index([email])
+}
+
+// ------------------------------------------------------------------- Catalogue
+
+enum Regime {
+  /// Un prix par tranche de participants.
+  PALIER
+  /// Une regle en texte libre : le prix est saisi a la main.
+  FORFAIT
+}
+
+/// Une animation vendable. La description porte le balisage HTML herite du
+/// catalogue facturation.pro, ainsi que des marqueurs a completer au devis
+/// (« Base XX pax »).
+model Animation {
+  id            String  @id @default(cuid())
+  cle           String  @unique
+  nom           String
+  famille       String?
+  categorie     String?
+  /// Vendue en libre acces : pas de jauge de participants sur le devis.
+  libreAcces    Boolean @default(false)
+  descriptionHtml String?
+  dureeStandard String?
+  lienNotion    String?
+  fichePdfUrl   String?
+  /// Identifiant du produit correspondant dans facturation.pro.
+  referenceFP   Int?
+  actif         Boolean @default(true)
+
+  lignesGrille GrilleLigne[]
+  lignesDevis  DevisLigne[]
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+
+  @@index([actif])
+}
+
+// ------------------------------------------------------- Grille tarifaire
+
+/// Un millesime de la grille. L'Excel reste la source de verite : chaque import
+/// cree une version, et une seule est active a la fois.
+model Grille {
+  id        String   @id @default(cuid())
+  millesime Int
+  version   String?
+  fichier   String
+  active    Boolean  @default(false)
+  /// Notes de bas de grille : majorations, province, options transverses.
+  regles    String[]
+  importeLe DateTime @default(now())
+
+  lignes  GrilleLigne[]
+  imports ImportGrille[]
+
+  @@index([active])
+}
+
+model GrilleLigne {
+  id       String @id @default(cuid())
+  grilleId String
+  grille   Grille @relation(fields: [grilleId], references: [id], onDelete: Cascade)
+
+  animationId String?
+  animation   Animation? @relation(fields: [animationId], references: [id])
+
+  /// Libelle brut de la colonne A, conserve tel quel pour la tracabilite.
+  libelle     String
+  cle         String
+  famille     String?
+  categorie   String?
+  libreAcces  Boolean @default(false)
+  regime      Regime
+  regleForfait String?
+  ligneSource Int
+
+  prix GrillePrix[]
+
+  @@unique([grilleId, cle])
+  @@index([animationId])
+}
+
+enum Palier {
+  P1_9
+  P10_19
+  P20_29
+  P30_49
+  P50_79
+  P80_119
+  P120_159
+  P160_199
+  P200_239
+  P240_PLUS
+}
+
+/// Nature d'une cellule. Une cellule vide et un prix a zero doivent rester
+/// distincts : les confondre produirait un devis a 0 €.
+enum CelluleKind {
+  PRIX
+  CONSULTER
+  SUR_DEMANDE
+  INDISPONIBLE
+  TEXTE
+  VIDE
+}
+
+model GrillePrix {
+  id            String      @id @default(cuid())
+  grilleLigneId String
+  grilleLigne   GrilleLigne @relation(fields: [grilleLigneId], references: [id], onDelete: Cascade)
+
+  palier    Palier
+  kind      CelluleKind
+  prixCents Int?
+  texte     String?
+
+  @@unique([grilleLigneId, palier])
+}
+
+enum StatutImport {
+  /// Analyse, en attente de validation des ecarts.
+  EN_ATTENTE
+  APPLIQUE
+  ANNULE
+}
+
+/// Trace d'un import de grille : ce qui a ete propose, ce qui a ete valide, et
+/// par qui. Sans cette trace, un prix inattendu sur un devis reste inexplicable.
+model ImportGrille {
+  id       String       @id @default(cuid())
+  fichier  String
+  statut   StatutImport @default(EN_ATTENTE)
+  /// Resultat brut du parseur, tel qu'analyse.
+  contenu  Json
+  /// Ecarts avec la grille active au moment de l'analyse.
+  ecarts   Json?
+  avertissements String[]
+
+  grilleId String?
+  grille   Grille? @relation(fields: [grilleId], references: [id])
+
+  parId String?
+  par   Utilisateur? @relation(fields: [parId], references: [id])
+
+  creeLe    DateTime  @default(now())
+  applicLe  DateTime?
+}
+
+// ----------------------------------------------------------------------- Devis
+
+enum StatutDevis {
+  BROUILLON
+  ENVOYE
+  VU
+  EN_DISCUSSION
+  ACCEPTE
+  REFUSE
+  EXPIRE
+  ANNULE
+}
+
+enum TypeLigneDevis {
+  TITRE
+  SAUT_PAGE
+  ANIMATION
+  REMISE
+  FRAIS_DEPLACEMENT
+  LIBRE
+}
+
+model Devis {
+  id      String @id @default(cuid())
+  /// Numero visible, dans la continuite de la serie facturation.pro.
+  numero  Int
+  /// Une modification apres envoi cree une version, l'anterieure est conservee.
+  version Int    @default(1)
+
+  statut StatutDevis @default(BROUILLON)
+
+  organisationId  String
+  organisation    Organisation   @relation(fields: [organisationId], references: [id])
+  etablissementId String?
+  etablissement   Etablissement? @relation(fields: [etablissementId], references: [id])
+  contactId       String?
+  contact         Contact?       @relation(fields: [contactId], references: [id])
+
+  commercialId String
+  commercial   Utilisateur @relation(fields: [commercialId], references: [id])
+
+  /// Titre de l'evenement, tel qu'il apparait en tete du devis.
+  titre String
+
+  /// Date civile de l'evenement, sans heure ni fuseau (`YYYY-MM-DD`).
+  dateEvent  String?
+  ville      String?
+  codePostal String?
+  pax        Int?
+  /// Renseigne quand la demande porte une fourchette (« 50-60 pax »).
+  paxMax     Int?
+
+  /// Majoration week-end et jours feries effectivement appliquee.
+  majoration      Boolean @default(false)
+  kmAllerRetour   Int?
+  langue          String  @default("fr")
+
+  /// Millesime de grille utilise, pour pouvoir recalculer a l'identique.
+  grilleMillesime Int?
+
+  totalHTCents      Int @default(0)
+  totalTVACents     Int @default(0)
+  totalTTCCents     Int @default(0)
+  totalOptionsCents Int @default(0)
+  acompteCents      Int @default(0)
+
+  /// Jeton du lien public envoye au client.
+  jetonPublic String? @unique
+  valableAu   String?
+
+  accepteLe        DateTime?
+  accepteParNom    String?
+  accepteParEmail  String?
+  accepteDepuisIP  String?
+  motifRefus       String?
+
+  pdfUrl String?
+
+  lignes      DevisLigne[]
+  evenements  DevisEvenement[]
+
+  creeLe    DateTime @default(now())
+  modifieLe DateTime @updatedAt
+  envoyeLe  DateTime?
+
+  @@unique([numero, version])
+  @@index([statut])
+  @@index([organisationId])
+}
+
+model DevisLigne {
+  id      String @id @default(cuid())
+  devisId String
+  devis   Devis  @relation(fields: [devisId], references: [id], onDelete: Cascade)
+
+  position Int
+  type     TypeLigneDevis
+
+  animationId String?
+  animation   Animation? @relation(fields: [animationId], references: [id])
+
+  designation       String
+  prixUnitaireCents Int    @default(0)
+  quantite          Float  @default(1)
+  tvaPct            Int    @default(20)
+  totalHTCents      Int    @default(0)
+
+  /// Presentee en option : visible sur le devis, exclue du total.
+  optionnelle Boolean @default(false)
+  /// Prix de grille avant majoration, quand celle-ci s'applique.
+  prixAvantMajorationCents Int?
+  /// Ligne de remise rattachee a la prestation qui la precede.
+  remisePct Int?
+
+  @@unique([devisId, position])
+  @@index([devisId])
+}
+
+enum TypeEvenement {
+  CREATION
+  ENVOI
+  OUVERTURE
+  RELANCE
+  DEMANDE_MODIFICATION
+  ACCEPTATION
+  REFUS
+  EXPIRATION
+  NOUVELLE_VERSION
+  NOTE
+}
+
+/// Journal du devis : chaque action, cote interne comme cote client, y laisse
+/// une trace horodatee. C'est ce qui alimente l'historique visible sur le lien
+/// public et les statistiques de conversion.
+model DevisEvenement {
+  id      String @id @default(cuid())
+  devisId String
+  devis   Devis  @relation(fields: [devisId], references: [id], onDelete: Cascade)
+
+  type    TypeEvenement
+  detail  String?
+  /// Charge utile libre : motif de refus, rang de relance, agent utilisateur.
+  donnees Json?
+
+  parId String?
+  par   Utilisateur? @relation(fields: [parId], references: [id])
+
+  creeLe DateTime @default(now())
+
+  @@index([devisId])
+  @@index([type])
+}
+
+// ------------------------------------------------------------------ Parametres
+
+/// Reglages de la societe emettrice et du dispositif d'envoi. Une seule ligne.
+model Parametres {
+  id String @id @default("global")
+
+  raisonSociale String @default("MAD CORP")
+  adresse       String @default("14, Avenue de l'Opéra")
+  codePostal    String @default("75001")
+  ville         String @default("PARIS")
+  mentionsPied  String?
+  coordonneesBancaires String?
+
+  /// Prochain numero a emettre.
+  prochainNumero Int @default(19803)
+
+  validiteJours Int @default(30)
+  acomptePct    Int @default(70)
+
+  emailExpediteur String?
+  emailRepondreA  String?
+  /// Adresse mise en copie cachee, pour tenir le fil Pipedrive a jour.
+  emailCCI        String?
+
+  modifieLe DateTime @updatedAt
+}
