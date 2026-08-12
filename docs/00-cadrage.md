@@ -16,8 +16,26 @@ sources, et points encore ouverts. Il est mis à jour à chaque décision.
 | Maîtrise du devis | L'outil est maître du devis et de sa numérotation. facturation.pro n'intervient qu'à la facture, et garde la numérotation légale des factures. |
 | Utilisateurs | Petite équipe commerciale (2-5), avec rôles : admin (grille, catalogue, remises) vs commercial (devis). |
 | Stack | Next.js + Postgres managé, hébergement UE. Stockage objet pour les PDF. |
-| Grille tarifaire | L'Excel reste la source de vérité. L'outil l'importe et le versionne. |
+| Grille tarifaire | L'Excel reste la source de vérité. Import manuel avec écran de validation des écarts — la grille change au plus une fois par an. Chaque import est versionné. |
 | Catalogue | ~100 produits FP, dont ~50 vendus régulièrement. Textes complétés au cas par cas → l'outil doit permettre l'édition libre d'une désignation. |
+| Numérotation | Continuité de la série facturation.pro : le prochain devis émis est le **19803**. |
+| Email | Envoi direct depuis l'outil, SPF/DKIM sur `madcityzen.fr`, **CCI vers l'adresse Pipedrive du deal** pour tenir le fil CRM à jour, et suivi d'ouverture. |
+| Remise | Décision ponctuelle à chaque devis (pas d'attribut permanent sur la fiche client). |
+| Versions | Les versions antérieures d'un devis sont conservées (versioning simple). |
+| Migration | Reprise des 7 551 clients de facturation.pro, avec dédoublonnage. |
+| Dropbox | Écarté pour le moment. Les PDF vivent dans l'outil. |
+| Domaine | `app.madcityzen.fr` (accès à définir ultérieurement). |
+
+## 1bis. Règles de prix arbitrées
+
+Ces règles priment sur les mentions de la grille Excel quand elles divergent :
+
+| Règle | Valeur retenue | Note |
+|---|---|---|
+| Majoration week-end et jours fériés | **+15 %** | La grille 2026 mentionne +10 % (ligne 71) : à corriger à la prochaine édition de l'Excel. |
+| Frais kilométriques | **1 € HT/km A/R, départ 92400 Courbevoie** | Calcul automatique de la distance depuis la ville de l'événement. Le PDF de référence mentionne « départ Paris 1er » : formulation à corriger dans le texte du produit. |
+| Périmètre sans frais de déplacement | **75, 92, 93, 94 uniquement** | La grille annonce « toute l'Île-de-France » (ligne 68) : idem, à corriger. |
+| Province — bloc VHR | **Saisie manuelle du montant en v1** | Trop de cas particuliers pour codifier (aller-retour dans la journée, etc.). Un calculateur d'aide à la saisie est prévu en étape 2 : km à facturer, nuitées et repas par staff, immobilisation 250 € HT par tranche de 8 h ouvrées **au-delà de la première journée**. |
 
 ## 2. Sources analysées
 
@@ -151,32 +169,38 @@ Chaque action doit notifier le commercial et tracer un événement sur le devis.
 
 ---
 
-## 4. Points à trancher
+## 4. Identité visuelle
 
-### 4.1 Contradictions entre sources — bloquant
+Logo fourni en PDF vectoriel (`madcity_color_fond_blanc1.pdf`). Le signe est construit en
+**dégradé** (rose → violet → bleu) : l'export SVG automatique perd le dégradé, seul le mot-symbole
+noir est conservé. En attendant le fichier source vectoriel, l'asset exploitable est un PNG
+600 dpi détourné.
 
-| Sujet | Source A | Source B | À trancher |
-|---|---|---|---|
-| Majoration week-end | Illan : **+15 %** | Grille (ligne 71) : **+10 %** | Quel taux fait foi ? |
-| Départ des frais km | Illan : **75001** | Grille (ligne 76) : **Courbevoie (92)** ; PDF YOUSIGN : **Paris 1er** | Quel point de départ ? |
-| Périmètre inclus | Grille : **toute l'Île-de-France** | PDF : **Paris + 75/92/93/94** | Petite couronne ou IdF entière ? |
+| Asset | Fichier |
+|---|---|
+| Logo sur fond blanc | `assets/logo-madcityzen.png` (1425×809) |
+| Logo fond transparent | `assets/logo-madcityzen-transparent.png` |
 
-### 4.2 Questions ouvertes
+Palette de marque relevée sur le logo :
 
-1. **Numérotation** : continuer la série FP (19803…) ou repartir sur un format annuel ?
-2. **Import de la grille** : bouton d'import manuel avec écran de validation des écarts, ou
-   synchro Dropbox automatique ?
-3. **Envoi email** : service dédié (`devis@madcityzen.fr`, SPF/DKIM à poser sur le DNS OVH) ou
-   génération d'un brouillon Outlook pour rester dans le fil existant ?
-4. **Frais de province** : calculés automatiquement (staff × 8 h + repas + nuitées + km) ou
-   saisis à la main comme aujourd'hui (cf. devis 13823420 : « Trajet Paris > Lyon > Paris »,
-   forfait 300 €) ?
-5. **Km** : saisie manuelle du kilométrage, ou calcul automatique depuis la ville ?
-6. **Remise agence** : attribut permanent du client (case « agence/revendeur » sur la fiche) ou
-   décision ponctuelle à chaque devis ?
-7. **Statuts et relances** : quel cycle de vie, quelle cadence de relance automatique ?
-8. **Versions** : gérer une V2 d'un devis modifié, ou écraser ?
-9. **Historique** : reprendre les 238 devis et les clients existants, ou démarrer à vide ?
-10. **Dropbox** : conserver la copie automatique des PDF dans `Commercial\Clients\Active\<Client>\` ?
-11. **Domaine** et accès DNS.
-12. **Logo** : fichier vectoriel (SVG/AI) ou PNG haute définition à fournir.
+| Rôle | Hex |
+|---|---|
+| Rose (accent principal) | `#C8699C` |
+| Bleu (accent secondaire) | `#5DAEDA` |
+| Violet (transition du dégradé) | `#9F8EB9` |
+| Noir du mot-symbole | `#231F20` |
+
+## 5. Points encore ouverts
+
+1. **Fichier logo vectoriel** (SVG ou AI) avec le dégradé, pour un rendu net à toute taille dans
+   le PDF et l'interface.
+2. **Adresse CCI Pipedrive** : Pipedrive expose une adresse par affaire. Tant que l'intégration
+   Pipedrive n'est pas faite (étape 2), l'outil ne peut pas la retrouver seul. En v1 : un champ
+   « CCI » réglable, avec une adresse par défaut au niveau du compte et une surcharge possible
+   devis par devis. La récupération automatique de l'adresse de l'affaire viendra avec
+   l'intégration.
+3. **Accès DNS** `madcityzen.fr` chez OVH, pour poser SPF/DKIM et le sous-domaine
+   `app.madcityzen.fr`.
+4. **API de distance** pour le calcul km depuis Courbevoie : à choisir (une clé sera nécessaire).
+5. **Acompte** : maintien du 70 % TTC à l'acceptation ? C'est élevé et cela peut freiner la
+   signature — voir `01-conversion.md`.
