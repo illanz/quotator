@@ -32,6 +32,16 @@ describe("comparerGrilles", () => {
     expect(diff.modifications).toEqual([]);
   });
 
+  it("compare par palier, quel que soit l'ordre des cellules", () => {
+    // La grille relue depuis la base ne rend pas ses cellules dans l'ordre du
+    // fichier. Comparer par position inventerait des ecarts sur toute la ligne.
+    const suivante = copier(grille2026);
+    for (const l of suivante.lignes) l.cellules.reverse();
+
+    const diff = comparerGrilles(grille2026, suivante);
+    expect(diff.resume.identique).toBe(true);
+  });
+
   it("chiffre une hausse de prix palier par palier", () => {
     const suivante = copier(grille2026);
     const batucada = ligne(suivante, "BATUCADA");

@@ -66,8 +66,12 @@ function decrire(c: Cellule): string {
 function comparerLignes(avant: LigneGrille, apres: LigneGrille): EcartLigne | null {
   const prix: EcartPrix[] = [];
 
-  apres.cellules.forEach((cellApres, i) => {
-    const cellAvant = avant.cellules[i];
+  // Le rapprochement se fait par palier, jamais par position : deux grilles
+  // n'ont aucune raison de presenter leurs cellules dans le meme ordre.
+  const avantParPalier = new Map(avant.cellules.map((c) => [c.palier, c]));
+
+  apres.cellules.forEach((cellApres) => {
+    const cellAvant = avantParPalier.get(cellApres.palier);
     if (!cellAvant) return;
     if (
       cellAvant.kind === cellApres.kind &&

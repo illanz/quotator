@@ -1,0 +1,417 @@
+/*
+ * Habillage Quotator.
+ *
+ * La palette vient du logo MadCityZen : rose et bleu du signe, neutres tires
+ * vers le violet du degrade. L'outil est fait pour etre opere vite, pas
+ * contemple : hierarchie nette, densite d'information elevee, couleur reservee
+ * a ce qui demande une decision.
+ */
+
+:root {
+  --rose: #c8699c;
+  --rose-fonce: #a34d7c;
+  --bleu: #5daeda;
+  --bleu-fonce: #3286b3;
+  --violet: #9f8eb9;
+
+  --fond: #faf9fb;
+  --surface: #ffffff;
+  --surface-2: #f4f1f6;
+  --encre: #231f20;
+  --encre-2: #675f6d;
+  --encre-3: #918a97;
+  --trait: #e4dfe8;
+  --trait-fort: #cfc7d5;
+
+  --succes: #2f7d63;
+  --succes-fond: #e8f4ef;
+  --alerte: #9a6416;
+  --alerte-fond: #fdf3e3;
+  --danger: #b1443c;
+  --danger-fond: #fbeceb;
+
+  --ombre: 0 1px 2px rgba(35, 31, 32, 0.04), 0 8px 24px -18px rgba(35, 31, 32, 0.2);
+  --rayon: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--encre);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+a {
+  color: var(--rose-fonce);
+}
+
+.mono,
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.tabulaire {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ ossature */
+
+.entete {
+  background: var(--surface);
+  border-bottom: 1px solid var(--trait);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.entete-inner {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  height: 58px;
+}
+
+.marque {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  color: var(--encre);
+}
+
+.marque-signe {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--rose) 0%, var(--violet) 55%, var(--bleu) 100%);
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.nav a {
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--encre-2);
+  text-decoration: none;
+}
+
+.nav a:hover {
+  background: var(--surface-2);
+  color: var(--encre);
+}
+
+.nav a[aria-current="page"] {
+  background: var(--encre);
+  color: var(--surface);
+}
+
+main {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+/* --------------------------------------------------------------- typographie */
+
+h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  margin: 0 0 6px;
+  text-wrap: balance;
+}
+
+h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.014em;
+  margin: 32px 0 0;
+}
+
+h3 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.lede {
+  color: var(--encre-2);
+  margin: 0 0 24px;
+  max-width: 46rem;
+}
+
+.silence {
+  color: var(--encre-2);
+}
+
+/* --------------------------------------------------------------- composants */
+
+.carte {
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+  padding: 20px;
+}
+
+.grille-cartes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.stat .n {
+  display: block;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.stat .l {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--encre-2);
+  margin-top: 4px;
+}
+
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--trait-fort);
+  background: var(--surface);
+  color: var(--encre);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.bouton:hover {
+  background: var(--surface-2);
+}
+
+.bouton-primaire {
+  background: var(--encre);
+  border-color: var(--encre);
+  color: var(--surface);
+}
+
+.bouton-primaire:hover {
+  background: #3a3436;
+}
+
+.bouton-danger {
+  color: var(--danger);
+  border-color: var(--trait-fort);
+}
+
+.bouton:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--rose);
+  outline-offset: 2px;
+}
+
+.barre-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.puce {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--trait-fort);
+  background: var(--surface-2);
+  color: var(--encre-2);
+  white-space: nowrap;
+}
+
+.puce-palier {
+  border-color: var(--bleu);
+  color: var(--bleu-fonce);
+}
+
+.puce-forfait {
+  border-color: var(--violet);
+  color: var(--violet);
+}
+
+.puce-libre {
+  border-color: var(--rose);
+  color: var(--rose-fonce);
+}
+
+.encadre {
+  border-radius: var(--rayon);
+  padding: 14px 16px;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  border: 1px solid;
+}
+
+.encadre-succes {
+  background: var(--succes-fond);
+  border-color: #bfded2;
+  color: var(--succes);
+}
+
+.encadre-alerte {
+  background: var(--alerte-fond);
+  border-color: #edd8b4;
+  color: var(--alerte);
+}
+
+.encadre-danger {
+  background: var(--danger-fond);
+  border-color: #f0cbc8;
+  color: var(--danger);
+}
+
+.encadre p {
+  margin: 0;
+}
+
+.encadre p + p,
+.encadre ul {
+  margin-top: 8px;
+}
+
+.encadre ul {
+  padding-left: 18px;
+  margin-bottom: 0;
+}
+
+/* -------------------------------------------------------------------- tables */
+
+.table-enveloppe {
+  overflow-x: auto;
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  margin-top: 16px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.86rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--trait);
+  vertical-align: top;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--encre-3);
+  white-space: nowrap;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:hover td {
+  background: #fcfbfd;
+}
+
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+tr.famille td {
+  background: var(--surface-2);
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--encre-2);
+}
+
+.hausse {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.baisse {
+  color: var(--succes);
+  font-weight: 600;
+}
+
+.vide {
+  color: var(--encre-3);
+}
+
+/* ------------------------------------------------------------------ formulaire */
+
+.champ-fichier {
+  display: block;
+  border: 2px dashed var(--trait-fort);
+  border-radius: var(--rayon);
+  padding: 26px;
+  text-align: center;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.champ-fichier:hover {
+  border-color: var(--rose);
+  background: #fdfbfc;
+}
+
+.champ-fichier input {
+  display: block;
+  margin: 12px auto 0;
+  font: inherit;
+  font-size: 0.86rem;
+}
+
+.vide-etat {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--encre-2);
+}
