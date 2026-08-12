@@ -190,17 +190,65 @@ Palette de marque relevée sur le logo :
 | Violet (transition du dégradé) | `#9F8EB9` |
 | Noir du mot-symbole | `#231F20` |
 
-## 5. Points encore ouverts
+## 5. Questions ouvertes, par jalon
 
-1. **Fichier logo vectoriel** (SVG ou AI) avec le dégradé, pour un rendu net à toute taille dans
-   le PDF et l'interface.
-2. **Adresse CCI Pipedrive** : Pipedrive expose une adresse par affaire. Tant que l'intégration
-   Pipedrive n'est pas faite (étape 2), l'outil ne peut pas la retrouver seul. En v1 : un champ
-   « CCI » réglable, avec une adresse par défaut au niveau du compte et une surcharge possible
-   devis par devis. La récupération automatique de l'adresse de l'affaire viendra avec
-   l'intégration.
-3. **Accès DNS** `madcityzen.fr` chez OVH, pour poser SPF/DKIM et le sous-domaine
+Les questions ne sont pas toutes à traiter en même temps : chacune est rattachée au moment où
+elle bloque réellement le travail. Rien de ce qui suit n'empêche de démarrer le socle.
+
+### 5.1 Rien ne bloque le socle
+
+Modèle de données, import de la grille et moteur de prix sont entièrement débloqués.
+
+### 5.2 Avant le générateur de PDF
+
+1. **Mentions légales** : je reprends telles quelles celles extraites du devis de référence
+   (validité 30 j, règlement à réception, pénalités BCE + 10 pts, indemnité 40 €, escompte aucun,
+   acompte 70 %, RIB Crédit Agricole, note sur les créneaux d'installation). À confirmer, et à
+   compléter : faut-il un bloc « bon pour accord » signable sur le PDF, et un renvoi aux CGV ?
+   Existe-t-il un texte de CGV de référence ?
+2. **Devis en anglais** : la grille annonce les animations disponibles en anglais sans surcoût, et
+   un titre de devis en anglais figure dans le corpus (`Evening Entertainment / Sept 14, 2026`).
+   Faut-il une version anglaise du template PDF et des mails dès la v1, ou plus tard ?
+
+### 5.3 Avant la fonction d'envoi
+
+3. **Adresse d'expédition** : `devis@madcityzen.fr`, `illanz@madcityzen.fr`, ou l'adresse du
+   commercial en charge ? Et quelle adresse en `Répondre à` ?
+4. **Adresse CCI Pipedrive** : Pipedrive expose une adresse par affaire, que l'outil ne peut pas
+   retrouver seul avant l'intégration (étape 2). En v1 : champ CCI réglable, adresse par défaut au
+   niveau du compte, surcharge possible devis par devis.
+5. **Acceptation en ligne** : le clic horodaté suffit-il, ou faut-il une signature électronique
+   formelle pour certains clients (grands comptes, marchés publics) ?
+6. **Séquence de relance et copy** : la proposition de `01-conversion.md` est à valider ou à
+   amender — cadence, ton, nombre de relances.
+7. **Acompte** : maintien du 70 % TTC à l'acceptation ? Élevé pour un premier client, et 88 % des
+   devis partent vers un client qui n'a jamais commandé. Options proposées dans `01-conversion.md`.
+8. **Accès DNS** `madcityzen.fr` chez OVH, pour poser SPF/DKIM et le sous-domaine
    `app.madcityzen.fr`.
-4. **API de distance** pour le calcul km depuis Courbevoie : à choisir (une clé sera nécessaire).
-5. **Acompte** : maintien du 70 % TTC à l'acceptation ? C'est élevé et cela peut freiner la
-   signature — voir `01-conversion.md`.
+
+### 5.4 Avant le calcul automatique des kilomètres
+
+9. **API de distance** depuis Courbevoie (92400) : prestataire à choisir, clé à fournir.
+
+### 5.5 Avant l'étape 2 — Pipedrive
+
+10. **Sens de la synchronisation** : lecture seule du lead, ou également écriture (valeur, lien
+    devis, animations, conversion en affaire) ?
+11. **Accès** : jeton API et liste des champs personnalisés (Pax, Date event, Lieu, Langue,
+    Lien devis, Animations).
+12. **Rôle à terme** : Pipedrive reste-t-il le CRM, ou l'outil a-t-il vocation à absorber le suivi
+    commercial ? La réponse peut être « plus tard », mais elle oriente l'architecture.
+
+### 5.6 Avant l'étape 3 — facturation.pro
+
+13. **Accès** : clé API et `firm_id` (à placer en variables d'environnement, jamais dans le dépôt).
+14. **Facturation** : facture unique à l'acceptation, ou acompte puis solde ? Les avoirs et le
+    suivi des paiements restent-ils dans facturation.pro ?
+
+### 5.7 Sans urgence
+
+15. **Échéance** cible pour arrêter les devis manuels.
+16. **Budget d'infra** mensuel acceptable.
+17. **Mode de livraison** : preview en ligne mise à jour en continu, ou jalons validés ?
+18. **Fichier logo vectoriel** (SVG ou AI) avec le dégradé — le PNG 600 dpi suffit pour le PDF et
+    l'interface, le vectoriel ne servirait qu'en impression grand format.
