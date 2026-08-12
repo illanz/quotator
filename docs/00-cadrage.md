@@ -32,9 +32,9 @@ Ces règles priment sur les mentions de la grille Excel quand elles divergent :
 
 | Règle | Valeur retenue | Note |
 |---|---|---|
-| Majoration week-end et jours fériés | **+15 %** | La grille 2026 mentionne +10 % (ligne 71) : à corriger à la prochaine édition de l'Excel. |
-| Frais kilométriques | **1 € HT/km A/R, départ 92400 Courbevoie** | Calcul automatique de la distance depuis la ville de l'événement. Le PDF de référence mentionne « départ Paris 1er » : formulation à corriger dans le texte du produit. |
-| Périmètre sans frais de déplacement | **75, 92, 93, 94 uniquement** | La grille annonce « toute l'Île-de-France » (ligne 68) : idem, à corriger. |
+| Majoration week-end et jours fériés | **+15 %**, en **ligne visible** sur le devis | La grille 2026 mentionne +10 % (ligne 71) : Illan corrigera l'Excel. Le client lit le tarif de grille, puis la majoration sur sa propre ligne. |
+| Frais kilométriques | **1 € HT/km A/R, calcul au départ de 92400 Courbevoie** | La ligne affichée au client garde la formulation habituelle « Paris > Ville > Paris » : le client n'a pas à connaître l'adresse du dépôt, seul le calcul part de Courbevoie. |
+| Périmètre sans frais de déplacement | **75, 92, 93, 94 uniquement** | La grille annonce « toute l'Île-de-France » (ligne 68) : Illan corrigera l'Excel. |
 | Province — bloc VHR | **Saisie manuelle du montant en v1** | Trop de cas particuliers pour codifier (aller-retour dans la journée, etc.). Un calculateur d'aide à la saisie est prévu en étape 2 : km à facturer, nuitées et repas par staff, immobilisation 250 € HT par tranche de 8 h ouvrées **au-delà de la première journée**. |
 
 ## 2. Sources analysées

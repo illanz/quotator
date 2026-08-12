@@ -1,7 +1,7 @@
 import type { Cents } from "@/domain/money";
 import {
   DEPARTEMENTS_INCLUS,
-  DEPART_VILLE,
+  DEPART_LIBELLE_CLIENT,
   PRIX_KM_CENTS,
 } from "@/domain/regles";
 
@@ -50,5 +50,5 @@ export function calculerFraisDeplacement(
 
 /** Libelle de la ligne de frais, au format employe sur les devis. */
 export function libelleFraisDeplacement(ville: string): string {
-  return `Frais de déplacement ${DEPART_VILLE} > ${ville} > ${DEPART_VILLE}`;
+  return `Frais de déplacement ${DEPART_LIBELLE_CLIENT} > ${ville} > ${DEPART_LIBELLE_CLIENT}`;
 }

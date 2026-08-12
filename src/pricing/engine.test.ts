@@ -155,9 +155,12 @@ describe("calculerDevis", () => {
     });
 
     expect(devis.majorationAppliquee).toBe(true);
+    // Le client lit le tarif de grille, puis la majoration sur sa propre ligne.
     const animation = devis.lignes.find((l) => l.type === "ANIMATION");
-    expect(animation?.prixUnitaireCents).toBe(182850); // 1 590 € + 15 %
-    expect(animation?.prixAvantMajorationCents).toBe(159000);
+    expect(animation?.prixUnitaireCents).toBe(159000);
+    const majoration = devis.lignes.find((l) => l.type === "MAJORATION");
+    expect(majoration?.designation).toBe("Majoration week-end et jours fériés (+15 %)");
+    expect(majoration?.totalHTCents).toBe(23850); // 15 % de 1 590 €
     expect(devis.totalHTCents).toBe(182850);
   });
 
@@ -167,9 +170,10 @@ describe("calculerDevis", () => {
       majoration: true,
       prestations: [{ designation: "Graffiti", prixUnitaireCents: 100000, remisePct: 10 }],
     });
-    const [, animation, remise] = devis.lignes;
-    expect(animation?.prixUnitaireCents).toBe(115000);
-    expect(remise?.prixUnitaireCents).toBe(-11500);
+    const [, animation, majoration, remise] = devis.lignes;
+    expect(animation?.prixUnitaireCents).toBe(100000);
+    expect(majoration?.prixUnitaireCents).toBe(15000);
+    expect(remise?.prixUnitaireCents).toBe(-11500); // 10 % de 115 000
     expect(devis.totalHTCents).toBe(103500);
   });
 
@@ -209,7 +213,8 @@ describe("calculerDevis", () => {
       prestations: [{ designation: "Théâtre", prixUnitaireCents: 190000 }],
     });
     const frais = devis.lignes.find((l) => l.type === "FRAIS_DEPLACEMENT");
-    expect(frais?.designation).toBe("Frais de déplacement Courbevoie > Lyon > Courbevoie");
+    // Le client lit « Paris », meme si le kilometrage part de Courbevoie.
+    expect(frais?.designation).toBe("Frais de déplacement Paris > Lyon > Paris");
     expect(frais?.totalHTCents).toBe(94000);
     expect(devis.totalHTCents).toBe(284000);
   });

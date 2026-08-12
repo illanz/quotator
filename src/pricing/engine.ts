@@ -12,6 +12,7 @@ export type TypeLigne =
   | "TITRE"
   | "SAUT_PAGE"
   | "ANIMATION"
+  | "MAJORATION"
   | "REMISE"
   | "FRAIS_DEPLACEMENT"
   | "LIBRE";
@@ -66,8 +67,6 @@ export type LigneCalculee = {
   tvaPct: number;
   totalHTCents: Cents;
   optionnelle: boolean;
-  /** Renseigne quand la majoration week-end a modifie le prix unitaire. */
-  prixAvantMajorationCents?: Cents;
 };
 
 export type VentilationTVA = {
@@ -145,11 +144,6 @@ export function calculerDevis(input: DevisInput): DevisCalcule {
       });
     }
 
-    const applique = majoration && majorable;
-    const prixUnitaireCents = applique
-      ? applyPercent(p.prixUnitaireCents, MAJORATION_WEEKEND_PCT)
-      : p.prixUnitaireCents;
-
     if (p.prixUnitaireCents <= 0) {
       avertissements.push(
         `« ${p.designation} » n'a pas de prix : la grille ne donne pas de tarif pour ce palier, ou il reste a saisir.`,
@@ -159,22 +153,39 @@ export function calculerDevis(input: DevisInput): DevisCalcule {
     pousser({
       type: "ANIMATION",
       designation: p.designation,
-      prixUnitaireCents,
+      prixUnitaireCents: p.prixUnitaireCents,
       quantite,
       tvaPct,
       optionnelle,
-      ...(applique ? { prixAvantMajorationCents: p.prixUnitaireCents } : {}),
     });
 
-    // La remise suit immediatement la ligne qu'elle remise, et epouse son
-    // caractere optionnel : une remise sur une option ne doit pas entrer dans
-    // le total ferme.
+    // La majoration apparait en ligne distincte plutot que fondue dans le prix
+    // unitaire : le client voit le tarif de grille, puis ce qui s'y ajoute.
+    const applique = majoration && majorable;
+    const baseCents = roundCents(p.prixUnitaireCents * quantite);
+    const majorationCents = applique
+      ? applyPercent(baseCents, MAJORATION_WEEKEND_PCT) - baseCents
+      : 0;
+
+    if (applique && majorationCents !== 0) {
+      pousser({
+        type: "MAJORATION",
+        designation: `Majoration week-end et jours fériés (+${MAJORATION_WEEKEND_PCT} %)`,
+        prixUnitaireCents: majorationCents,
+        quantite: 1,
+        tvaPct,
+        optionnelle,
+      });
+    }
+
+    // La remise suit les lignes qu'elle remise, et epouse leur caractere
+    // optionnel : une remise sur une option ne doit pas entrer dans le total
+    // ferme. Elle porte sur le prix majore, pas sur le seul tarif de grille.
     if (p.remisePct && p.remisePct > 0) {
-      const baseCents = roundCents(prixUnitaireCents * quantite);
       pousser({
         type: "REMISE",
         designation: `Remise commerciale de ${p.remisePct}%`,
-        prixUnitaireCents: discountAmount(baseCents, p.remisePct),
+        prixUnitaireCents: discountAmount(baseCents + majorationCents, p.remisePct),
         quantite: 1,
         tvaPct,
         optionnelle,

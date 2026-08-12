@@ -28,6 +28,15 @@ export const DEPART_CODE_POSTAL = "92400";
 export const DEPART_VILLE = "Courbevoie";
 
 /**
+ * Ville affichee au client sur la ligne de frais de deplacement.
+ *
+ * Elle differe volontairement du point de depart facture : les devis
+ * MadCityZen annoncent « Paris > Ville > Paris » depuis toujours, et le client
+ * n'a pas a connaitre l'adresse du depot. Seul le calcul part de Courbevoie.
+ */
+export const DEPART_LIBELLE_CLIENT = "Paris";
+
+/**
  * Departements sans frais de deplacement.
  *
  * La grille annonce « toute l'Ile-de-France » ; le perimetre reellement

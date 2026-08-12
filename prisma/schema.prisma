@@ -292,6 +292,8 @@ enum TypeLigneDevis {
   TITRE
   SAUT_PAGE
   ANIMATION
+  /// Majoration week-end et jours feries, presentee en ligne distincte.
+  MAJORATION
   REMISE
   FRAIS_DEPLACEMENT
   LIBRE
@@ -384,8 +386,6 @@ model DevisLigne {
 
   /// Presentee en option : visible sur le devis, exclue du total.
   optionnelle Boolean @default(false)
-  /// Prix de grille avant majoration, quand celle-ci s'applique.
-  prixAvantMajorationCents Int?
   /// Ligne de remise rattachee a la prestation qui la precede.
   remisePct Int?
 
