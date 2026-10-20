@@ -12,9 +12,40 @@ describe("normaliserTypographie", () => {
     );
   });
 
-  it("laisse un guillemet orphelin plutôt que d'en inventer la paire", () => {
-    // Le catalogue contient « Street Art "Graffiti » sans fermante.
-    expect(normaliserTypographie('Street Art "Graffiti')).toContain('"Graffiti');
+  it("ferme un guillemet orphelin à la fin de son segment", () => {
+    // Le catalogue écrit « Street Art "Graffiti - Durée : 2h30 », sans fermante.
+    // La fermer au tiret, et non en fin de ligne, évite d'avaler la durée.
+    expect(normaliserTypographie('Activité Street Art "Graffiti - Durée : 2h30')).toBe(
+      `Activité Street Art «${FINE}Graffiti${FINE}» – Durée${FINE}: 2h30`,
+    );
+    expect(normaliserTypographie('Atelier "Light Painting')).toBe(
+      `Atelier «${FINE}Light Painting${FINE}»`,
+    );
+  });
+
+  it("reconnaît une paire avant d'y chercher un orphelin", () => {
+    // La paire contient un tiret : traitée comme orphelin, elle se fermerait
+    // après « GraffWall ».
+    expect(normaliserTypographie('"GraffWall - Animation Street Art Corporate"')).toBe(
+      `«${FINE}GraffWall – Animation Street Art Corporate${FINE}»`,
+    );
+  });
+
+  it("resserre les espaces glissées à l'intérieur des guillemets", () => {
+    expect(normaliserTypographie('notre cabine "Black Box " Dimensions')).toBe(
+      `notre cabine «${FINE}Black Box${FINE}» Dimensions`,
+    );
+  });
+
+  it("ne prend pas une mesure en pouces pour un guillemet", () => {
+    // « Diffusion sur grand écran 50" sur pied » : la marque suit un chiffre,
+    // c'est une mesure. La convertir ouvrirait une citation qui ne ferme jamais.
+    expect(normaliserTypographie('Diffusion sur grand écran 50" sur pied')).toBe(
+      'Diffusion sur grand écran 50" sur pied',
+    );
+    expect(normaliserTypographie('écran 48" sur pied & installé : 500€ HT')).toBe(
+      `écran 48" sur pied & installé${FINE}: 500${NBSP}€${NBSP}HT`,
+    );
   });
 
   it("colle la ponctuation double à une espace fine", () => {
@@ -27,8 +58,13 @@ describe("normaliserTypographie", () => {
   });
 
   it("ne sépare jamais un montant de son signe", () => {
-    expect(normaliserTypographie("Supplément de 15€ HT")).toBe(`Supplément de 15${NBSP}€ HT`);
-    expect(normaliserTypographie("800€ HT")).toBe(`800${NBSP}€ HT`);
+    // Ni le montant de sa monnaie, ni la monnaie de son régime de taxe : la
+    // ligne peut se couper avant « 15 », jamais à l'intérieur.
+    expect(normaliserTypographie("Supplément de 15€ HT")).toBe(
+      `Supplément de 15${NBSP}€${NBSP}HT`,
+    );
+    expect(normaliserTypographie("800€ HT")).toBe(`800${NBSP}€${NBSP}HT`);
+    expect(normaliserTypographie("1 590 € TTC")).toBe(`1${NBSP}590${NBSP}€${NBSP}TTC`);
     expect(normaliserTypographie("majoré de 15%")).toBe(`majoré de 15${NBSP}%`);
   });
 

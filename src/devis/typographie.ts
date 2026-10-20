@@ -17,18 +17,53 @@ const FINE = " ";
 /** Espace insecable : entre un nombre et son unite. */
 const INSECABLE = " ";
 
-/** Milliers d'un montant, reperes a l'euro qui les suit. */
-const MILLIERS = new RegExp(`\\b(\\d{1,3})(\\d{3})(?=${INSECABLE}?€)`, "g");
+/**
+ * Milliers d'un montant, reperes a l'euro qui les suit.
+ *
+ * Le separateur est pose quand il manque, et rendu insecable quand la saisie
+ * l'a mis en espace ordinaire : « 1 590 € » coupe en fin de ligne laisse un
+ * « 1 » orphelin et un « 590 € » qui se lit comme le montant entier.
+ */
+const MILLIERS = new RegExp(`\\b(\\d{1,3})[ ${INSECABLE}]?(\\d{3})(?=[ ${INSECABLE}]?€)`, "g");
+
+/** Marque de pouce : « écran 50" sur pied ». Ce n'est pas un guillemet. */
+const POUCE = /(\d\s*)"/g;
+/** Sentinelle le temps du traitement ; aucun texte du catalogue ne la contient. */
+const POUCE_GARDE = "\u0001";
+
+/** Paire de guillemets droits, sur une meme ligne. */
+const PAIRE = /"\s*([^"\n]*?)\s*"/g;
+
+/**
+ * Guillemet ouvrant sans fermante, ferme a la fin de son segment.
+ *
+ * Un segment s'arrete a un tiret entoure d'espaces, a une virgule ou a la fin
+ * de la ligne : « Street Art "Graffiti - Duree : 2h30 » devient « Street Art
+ * « Graffiti » - Duree : 2h30 », et non un guillemet avalant la duree.
+ */
+const ORPHELIN = /"\s*([^"\n]+?)\s*(?=\s[-–—]\s|,|$)/g;
 
 /**
  * Remplace les guillemets droits par des guillemets francais.
  *
- * Les paires sont traitees ensemble pour ne pas transformer une apostrophe
- * isolee en guillemet ouvrant : « Street Art "Graffiti » n'a pas de fermante,
- * et doit rester tel quel plutot que de produire un guillemet orphelin.
+ * Trois cas, dans cet ordre, parce qu'ils se recouvrent :
+ *
+ * 1. Les marques de pouce sont mises de cote. Un chiffre suivi d'un guillemet
+ *    droit est une mesure, pas une citation : « ecran 50" sur pied » n'ouvre
+ *    rien. Elles sont rendues telles quelles — le vrai symbole typographique,
+ *    la double prime, manque a la fonte embarquee.
+ * 2. Les paires d'abord, pour que « "GraffWall - Animation Street Art" » soit
+ *    reconnue comme un tout malgre le tiret qu'elle contient.
+ * 3. Ce qui reste est un guillemet ouvrant que la saisie n'a jamais referme.
+ *    Quinze ans de catalogue en comptent deux ; les fermer vaut mieux que les
+ *    laisser s'afficher droits au milieu d'un texte compose.
  */
 function guillemets(texte: string): string {
-  return texte.replace(/"([^"]+)"/g, `«${FINE}$1${FINE}»`);
+  return texte
+    .replace(POUCE, `$1${POUCE_GARDE}`)
+    .replace(PAIRE, `«${FINE}$1${FINE}»`)
+    .replace(ORPHELIN, `«${FINE}$1${FINE}»`)
+    .replace(new RegExp(POUCE_GARDE, "g"), '"');
 }
 
 export function normaliserTypographie(texte: string): string {
@@ -44,7 +79,9 @@ export function normaliserTypographie(texte: string): string {
       .replace(/(\d)\s*%/g, `$1${INSECABLE}%`)
       // « 1€HT/Km » : l'unite se detache, et le kilometre ne prend pas de
       // majuscule.
-      .replace(/€(HT|TTC)/gi, `€${INSECABLE}$1`)
+      // « 500 € HT » ne se coupe pas entre la monnaie et le regime de taxe,
+      // que la saisie ait mis une espace ou non.
+      .replace(/€\s*(HT|TTC)\b/gi, `€${INSECABLE}$1`)
       .replace(/\/\s*Km\b/g, "/km")
       // Separateur de milliers dans les montants a quatre chiffres et plus.
       .replace(MILLIERS, `$1${INSECABLE}$2`)
