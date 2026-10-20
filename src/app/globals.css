@@ -245,6 +245,19 @@ input:focus-visible {
   margin-top: 20px;
 }
 
+/* Confirmation d'une action qui ne se défait pas. */
+.confirmation {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.confirmation p {
+  flex-basis: 100%;
+  margin: 0;
+}
+
 .puce {
   display: inline-block;
   font-size: 0.72rem;

@@ -36,6 +36,21 @@ function versISO(d: Date): DateISO {
   return d.toISOString().slice(0, 10);
 }
 
+/**
+ * Date civile d'un instant, dans le fuseau de la societe.
+ *
+ * Un devis emis a 23 h 30 un mardi porte la date du mardi, pas celle du
+ * mercredi parce que le serveur tourne en UTC.
+ */
+export function dateCivile(instant: Date = new Date()): DateISO {
+  return new Intl.DateTimeFormat("fr-CA", {
+    timeZone: "Europe/Paris",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(instant);
+}
+
 export function ajouterJours(date: DateISO, jours: number): DateISO {
   const d = versUTC(date);
   d.setUTCDate(d.getUTCDate() + jours);

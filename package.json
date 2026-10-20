@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "banque": "tsx --env-file=.env scripts/enregistrer-banque.ts",
+    "serie": "tsx --env-file=.env scripts/serie.ts",
     "pdf:apercu": "tsx --tsconfig tsconfig.scripts.json --env-file=.env scripts/apercu-pdf.ts",
     "test": "vitest run",
     "test:watch": "vitest",

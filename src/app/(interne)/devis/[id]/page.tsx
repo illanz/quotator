@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { BlocDesignation, designationDepuisJson } from "@/app/designation-bloc";
+import { formaterDateLongue } from "@/devis/titre";
 import { formatEuros } from "@/domain/money";
 import { prisma } from "@/lib/prisma";
+import BoutonEmettre from "./bouton-emettre";
 
 export const dynamic = "force-dynamic";
 
@@ -100,7 +102,7 @@ export default async function PageDevis({ params }: { params: Promise<{ id: stri
       <dl className="kv">
         <div className="kv-row">
           <dt>Date</dt>
-          <dd>{devis.dateEvent ?? "à définir"}</dd>
+          <dd>{devis.dateEvent ? formaterDateLongue(devis.dateEvent) : "à définir"}</dd>
         </div>
         <div className="kv-row">
           <dt>Lieu</dt>
@@ -121,6 +123,7 @@ export default async function PageDevis({ params }: { params: Promise<{ id: stri
       </dl>
 
       <div className="barre-actions">
+        <BoutonEmettre devisId={devis.id} statut={devis.statut} />
         {devis.jetonPublic && (
           <a className="bouton bouton-primaire" href={`/p/${devis.jetonPublic}`} target="_blank">
             Ouvrir la page client
