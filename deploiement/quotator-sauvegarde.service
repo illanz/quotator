@@ -1,0 +1,10 @@
+[Unit]
+Description=Sauvegarde de la base Quotator
+After=postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /opt/quotator/deploiement/sauvegarder.sh
+# La sauvegarde lit le fichier d'environnement du service, qui n'est pas
+# lisible par tout le monde.
+User=root

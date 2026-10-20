@@ -1,0 +1,38 @@
+[Unit]
+Description=Quotator — gestion commerciale MadCityZen
+Documentation=https://github.com/illanz/quotator
+# La base tourne sur la meme machine : demarrer avant elle ne servirait a rien.
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=quotator
+Group=quotator
+WorkingDirectory=/opt/quotator/.next/standalone
+EnvironmentFile=/opt/quotator/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+# Caddy est devant : le serveur n'a aucune raison d'ecouter ailleurs que sur
+# la boucle locale.
+Environment=HOSTNAME=127.0.0.1
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=3
+
+# Cloisonnement. L'application lit des fontes et ecrit des sauvegardes ; elle
+# n'a besoin de rien d'autre du systeme de fichiers.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/quotator
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

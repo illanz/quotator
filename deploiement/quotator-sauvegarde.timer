@@ -1,0 +1,11 @@
+[Unit]
+Description=Sauvegarde nocturne de la base Quotator
+
+[Timer]
+# 3 h 17 plutot que 3 h 00 : les taches planifiees se bousculent sur les
+# heures rondes, et une sauvegarde n'a aucune raison d'attendre son tour.
+OnCalendar=*-*-* 03:17:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
