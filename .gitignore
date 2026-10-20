@@ -7,3 +7,6 @@ dist/
 .DS_Store
 e2e-tmp.mjs
 scripts/_*.ts
+
+# Courriers ecrits sur disque quand l'envoi n'est pas configure.
+.courrier/

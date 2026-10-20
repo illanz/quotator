@@ -245,6 +245,47 @@ input:focus-visible {
   margin-top: 20px;
 }
 
+/* ------------------------------------------------------------------ connexion */
+
+.connexion {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+
+.connexion-carte {
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.connexion-carte h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.connexion-carte p {
+  margin: 0;
+}
+
+.formulaire-connexion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+/* Le compte et la déconnexion se rangent à droite de la navigation. */
+.entete-compte {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
 /* Confirmation d'une action qui ne se défait pas. */
 .confirmation {
   display: flex;

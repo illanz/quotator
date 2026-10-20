@@ -36,6 +36,30 @@ model Utilisateur {
   devis          Devis[]
   importsGrille  ImportGrille[]
   evenementsFait DevisEvenement[]
+  jetons         JetonConnexion[]
+}
+
+/// Lien de connexion a usage unique.
+///
+/// Seule l'empreinte du jeton est conservee, jamais le jeton lui-meme : une
+/// base qui fuite ne doit pas livrer des acces en clair. Le jeton n'existe que
+/// dans le courriel et dans l'URL que l'utilisateur ouvre.
+model JetonConnexion {
+  id            String   @id @default(cuid())
+  empreinte     String   @unique
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  expireLe  DateTime
+  /// Horodatage de la consommation : un lien ne sert qu'une fois.
+  utiliseLe DateTime?
+  /// Adresse d'ou le lien a ete demande, pour enqueter sur un acces douteux.
+  demandeDepuisIP String?
+
+  creeLe DateTime @default(now())
+
+  @@index([utilisateurId])
+  @@index([expireLe])
 }
 
 // ------------------------------------------------------------------- Clientele
