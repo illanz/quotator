@@ -76,7 +76,7 @@ export default async function PageDevis({ params }: { params: Promise<{ id: stri
               .map((l) => (
                 <tr key={l.id} className={l.optionnelle ? "ligne-option" : ""}>
                   <td>
-                    {l.designation}
+                    <span className="designation">{l.designation}</span>
                     {l.optionnelle && <span className="puce">option</span>}
                   </td>
                   <td className="num">{l.type === "TITRE" ? "" : formatEuros(l.prixUnitaireCents)}</td>
@@ -113,10 +113,21 @@ export default async function PageDevis({ params }: { params: Promise<{ id: stri
       </dl>
 
       <div className="barre-actions">
+        {devis.jetonPublic && (
+          <a className="bouton bouton-primaire" href={`/p/${devis.jetonPublic}`} target="_blank">
+            Ouvrir la page client
+          </a>
+        )}
         <a className="bouton" href="/devis/nouveau">
           Nouveau devis
         </a>
       </div>
+      {devis.jetonPublic && (
+        <p className="silence petit">
+          C&apos;est cette page que reçoit le client. Le jeton du lien tient lieu d&apos;accès :
+          personne ne peut la deviner, et elle n&apos;est pas indexée.
+        </p>
+      )}
     </>
   );
 }

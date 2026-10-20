@@ -5,6 +5,11 @@ import { BORNES, type Palier } from "@/domain/paliers";
 import { formatEuros } from "@/domain/money";
 import { STATIONNEMENT_PARIS_CENTS } from "@/domain/regles";
 import { animateursPour } from "@/devis/animateurs";
+import {
+  analyserDesignation,
+  designationEnTexte,
+  rendreDesignation,
+} from "@/devis/designation";
 import { palierPourDemande, type AnimationVendable } from "@/devis/catalogue";
 import { composerTitre, type PrecisionDate } from "@/devis/titre";
 import { calculerDevis, type Prestation } from "@/pricing/engine";
@@ -28,6 +33,24 @@ const COMPLEMENTS = [
   { cle: "montage-veille", libelle: "Montage la veille", cents: 60000 },
   { cle: "montage-4h", libelle: "Montage 4 h à l'avance", cents: 40000 },
 ] as const;
+
+/** Designation vendue : l'intitule du catalogue, ses sections, et l'effectif. */
+function designationComplete(
+  animation: AnimationVendable,
+  palier: Palier | null,
+  animateurs: string | null,
+): string {
+  const base = `${animation.nom}${palier ? ` - Base ${BORNES[palier].label} participants` : ""}`;
+  if (!animation.descriptionHtml) {
+    return animateurs ? `${base}\nSTAFF :\n- ${animateurs}` : base;
+  }
+  const { designation } = rendreDesignation(analyserDesignation(animation.descriptionHtml), {
+    palier: palier ? BORNES[palier].label : null,
+    duree: animation.dureeStandard,
+    animateurs,
+  });
+  return designationEnTexte(designation);
+}
 
 export default function FormulaireDevis({
   millesime,
@@ -91,11 +114,12 @@ export default function FormulaireDevis({
     if (!a) return [];
     const prix = ligne.prixManuelCents ?? prixGrille(a) ?? 0;
     const effectif = palier ? animateursPour(a.cle, palier) : null;
-    const staff = effectif?.connu ? ` — ${effectif.effectif}` : "";
     return [
       {
         cle: a.cle,
-        designation: `${a.nom}${palier ? ` - Base ${BORNES[palier].label} participants` : ""}${staff}`,
+        // La designation complete du catalogue, marqueurs remplis : c'est elle
+        // que lit le client, et elle dit ce qui est compris dans la prestation.
+        designation: designationComplete(a, palier, effectif?.connu ? effectif.effectif : null),
         prixUnitaireCents: prix,
         remisePct: ligne.remisePct || undefined,
         optionnelle: ligne.optionnelle ?? (lignes.length > 1 && index > 0),
@@ -440,7 +464,7 @@ export default function FormulaireDevis({
                     .map((l) => (
                       <tr key={l.position} className={l.optionnelle ? "ligne-option" : ""}>
                         <td>
-                          {l.designation.split(" — ")[0]}
+                          {l.designation.split("\n")[0]}
                           {l.optionnelle && <span className="puce">option</span>}
                         </td>
                         <td className="num">{formatEuros(l.totalHTCents)}</td>

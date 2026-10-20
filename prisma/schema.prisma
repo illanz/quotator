@@ -361,6 +361,7 @@ model Devis {
 
   accepteLe        DateTime?
   accepteParNom    String?
+  accepteParFonction String?
   accepteParEmail  String?
   accepteDepuisIP  String?
   motifRefus       String?

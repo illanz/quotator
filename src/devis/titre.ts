@@ -44,6 +44,12 @@ export type ContexteTitre = {
   plageHoraire?: string | null;
 };
 
+/** « 10 décembre 2026 », pour une date destinee a etre lue par le client. */
+export function formaterDateLongue(date: DateISO): string {
+  const [annee, mois, jour] = date.split("-");
+  return `${Number(jour)} ${MOIS_LONGS[Number(mois) - 1]} ${annee}`;
+}
+
 function formaterDate(date: DateISO, precision: PrecisionDate): string {
   const [annee, mois, jour] = date.split("-");
   const indexMois = Number(mois) - 1;

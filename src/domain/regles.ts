@@ -67,6 +67,25 @@ export const MENTION_ENGAGEMENT =
   "seuls l'acceptation du devis et le versement de l'acompte garantissent la " +
   "disponibilité de nos équipes à la date retenue.";
 
+/**
+ * Bareme d'annulation, article 9 des conditions generales de vente.
+ *
+ * Affiche sur le devis et sur la page publique, et non renvoye au seul PDF
+ * annexe : l'acceptation engage immediatement, le client doit avoir ces
+ * chiffres sous les yeux au moment ou il valide.
+ */
+export const BAREME_ANNULATION = [
+  { delai: "De la signature jusqu'à 30 jours avant", partTTCPct: 50 },
+  { delai: "Du 29e au 8e jour avant", partTTCPct: 75 },
+  { delai: "À partir du 7e jour avant", partTTCPct: 100 },
+] as const;
+
+/**
+ * Delai au-dela duquel une baisse du nombre de participants ne diminue plus le
+ * prix (article 6 des conditions generales).
+ */
+export const DELAI_MODIFICATION_PAX_JOURS = 15;
+
 /** Premier numero emis par l'outil, dans la continuite de facturation.pro. */
 export const PREMIER_NUMERO_DEVIS = 19803;
 
