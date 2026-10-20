@@ -6,6 +6,7 @@ import {
   MENTION_ENGAGEMENT,
 } from "@/domain/regles";
 import { formatEuros } from "@/domain/money";
+import { BlocDesignation, designationDepuisJson } from "@/app/designation-bloc";
 import { formaterDateLongue } from "@/devis/titre";
 import { prisma } from "@/lib/prisma";
 import PanneauClient from "./panneau";
@@ -14,6 +15,13 @@ export const dynamic = "force-dynamic";
 
 /** Le lien public ne porte ni navigation interne ni indexation. */
 export const metadata = { robots: { index: false, follow: false } };
+
+/** Compose la structure quand elle existe, sans jamais perdre le texte. */
+function Composition({ structure, repli }: { structure: unknown; repli: string }) {
+  const designation = designationDepuisJson(structure);
+  if (designation) return <BlocDesignation designation={designation} />;
+  return <span className="designation">{repli}</span>;
+}
 
 export default async function PageDevisPublic({
   params,
@@ -87,7 +95,10 @@ export default async function PageDevisPublic({
                   .map((l) => (
                     <tr key={l.id}>
                       <td>
-                        <span className="designation">{l.designation}</span>
+                        <Composition
+                          structure={l.designationStructuree}
+                          repli={l.designation}
+                        />
                       </td>
                       <td className="num">
                         <strong>{formatEuros(l.totalHTCents)}</strong>

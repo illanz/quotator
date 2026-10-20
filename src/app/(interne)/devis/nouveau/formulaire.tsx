@@ -9,6 +9,7 @@ import {
   analyserDesignation,
   designationEnTexte,
   rendreDesignation,
+  type Designation,
 } from "@/devis/designation";
 import { palierPourDemande, type AnimationVendable } from "@/devis/catalogue";
 import { composerTitre, type PrecisionDate } from "@/devis/titre";
@@ -34,22 +35,33 @@ const COMPLEMENTS = [
   { cle: "montage-4h", libelle: "Montage 4 h à l'avance", cents: 40000 },
 ] as const;
 
-/** Designation vendue : l'intitule du catalogue, ses sections, et l'effectif. */
-function designationComplete(
+/**
+ * Designation vendue : l'intitule du catalogue, ses sections, et l'effectif.
+ *
+ * Rendue sous deux formes — la structure, que composent la page client et le
+ * PDF, et le texte, qui reste lisible partout ou la structure n'a pas sa place.
+ */
+function composerDesignation(
   animation: AnimationVendable,
   palier: Palier | null,
   animateurs: string | null,
-): string {
+): { texte: string; structure: Designation } {
   const base = `${animation.nom}${palier ? ` - Base ${BORNES[palier].label} participants` : ""}`;
+
   if (!animation.descriptionHtml) {
-    return animateurs ? `${base}\nSTAFF :\n- ${animateurs}` : base;
+    const structure: Designation = {
+      intitule: base,
+      sections: animateurs ? [{ intitule: "STAFF", lignes: [animateurs] }] : [],
+    };
+    return { texte: designationEnTexte(structure), structure };
   }
+
   const { designation } = rendreDesignation(analyserDesignation(animation.descriptionHtml), {
     palier: palier ? BORNES[palier].label : null,
     duree: animation.dureeStandard,
     animateurs,
   });
-  return designationEnTexte(designation);
+  return { texte: designationEnTexte(designation), structure: designation };
 }
 
 export default function FormulaireDevis({
@@ -114,12 +126,18 @@ export default function FormulaireDevis({
     if (!a) return [];
     const prix = ligne.prixManuelCents ?? prixGrille(a) ?? 0;
     const effectif = palier ? animateursPour(a.cle, palier) : null;
+    // La designation complete du catalogue, marqueurs remplis : c'est elle que
+    // lit le client, et elle dit ce qui est compris dans la prestation.
+    const { texte, structure } = composerDesignation(
+      a,
+      palier,
+      effectif?.connu ? effectif.effectif : null,
+    );
     return [
       {
         cle: a.cle,
-        // La designation complete du catalogue, marqueurs remplis : c'est elle
-        // que lit le client, et elle dit ce qui est compris dans la prestation.
-        designation: designationComplete(a, palier, effectif?.connu ? effectif.effectif : null),
+        designation: texte,
+        designationStructuree: structure,
         prixUnitaireCents: prix,
         remisePct: ligne.remisePct || undefined,
         optionnelle: ligne.optionnelle ?? (lignes.length > 1 && index > 0),

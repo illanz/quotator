@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import type { Prisma } from "@prisma/client";
 import type { Palier } from "@/domain/paliers";
 import { prisma } from "@/lib/prisma";
 import { calculerDevis, type DevisInput, type LigneCalculee } from "@/pricing/engine";
@@ -130,6 +131,7 @@ function versLigneBase(ligne: LigneCalculee) {
     position: ligne.position,
     type: ligne.type,
     designation: ligne.designation,
+    designationStructuree: (ligne.designationStructuree ?? null) as Prisma.InputJsonValue,
     prixUnitaireCents: ligne.prixUnitaireCents,
     quantite: ligne.quantite,
     tvaPct: ligne.tvaPct,

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { BlocDesignation, designationDepuisJson } from "@/app/designation-bloc";
 import { formatEuros } from "@/domain/money";
 import { prisma } from "@/lib/prisma";
 
@@ -76,7 +77,14 @@ export default async function PageDevis({ params }: { params: Promise<{ id: stri
               .map((l) => (
                 <tr key={l.id} className={l.optionnelle ? "ligne-option" : ""}>
                   <td>
-                    <span className="designation">{l.designation}</span>
+                    {designationDepuisJson(l.designationStructuree) ? (
+                      <BlocDesignation
+                        designation={designationDepuisJson(l.designationStructuree)!}
+                        compact
+                      />
+                    ) : (
+                      <span className="designation">{l.designation}</span>
+                    )}
                     {l.optionnelle && <span className="puce">option</span>}
                   </td>
                   <td className="num">{l.type === "TITRE" ? "" : formatEuros(l.prixUnitaireCents)}</td>

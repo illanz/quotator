@@ -21,6 +21,13 @@ export type Prestation = {
   /** Cle de l'animation dans la grille, si la ligne en vient. */
   cle?: string;
   designation: string;
+  /**
+   * Designation structuree en sections, figee a la creation.
+   *
+   * Le moteur ne l'interprete pas : il la transporte, pour que la page client
+   * et le PDF composent le meme contenu que celui qui a ete chiffre.
+   */
+  designationStructuree?: unknown;
   prixUnitaireCents: Cents;
   quantite?: number;
   tvaPct?: number;
@@ -67,6 +74,7 @@ export type LigneCalculee = {
   tvaPct: number;
   totalHTCents: Cents;
   optionnelle: boolean;
+  designationStructuree?: unknown;
 };
 
 export type VentilationTVA = {
@@ -157,6 +165,7 @@ export function calculerDevis(input: DevisInput): DevisCalcule {
       quantite,
       tvaPct,
       optionnelle,
+      ...(p.designationStructuree ? { designationStructuree: p.designationStructuree } : {}),
     });
 
     // La majoration apparait en ligne distincte plutot que fondue dans le prix

@@ -806,3 +806,102 @@ input[type="checkbox"] {
   font-weight: 700;
   color: #ffffff !important;
 }
+
+/* ------------------------------------------------- composition des désignations */
+
+/*
+ * Le texte vient d'un champ sans mise en forme : tout y est à plat. Le rendu
+ * redonne à chaque élément son rôle, et laisse respirer. Pas de justification :
+ * sur une colonne étroite elle creuse des rivières de blanc.
+ */
+.designation-bloc {
+  text-align: left;
+  hyphens: manual;
+  max-width: 42rem;
+}
+
+.designation-intitule {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  letter-spacing: -0.008em;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.designation-section {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--encre-3);
+  margin: 16px 0 5px;
+}
+
+.designation-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.designation-liste li {
+  position: relative;
+  padding-left: 15px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--encre-2);
+  text-wrap: pretty;
+}
+
+/* Une puce discrète, alignée sur la première ligne du texte. */
+.designation-liste li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--trait-fort);
+}
+
+.designation-texte {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--encre-2);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* Variante resserrée, pour les aperçus et les listes internes. */
+.designation-bloc.compact .designation-section {
+  margin-top: 10px;
+}
+
+.designation-bloc.compact .designation-liste li,
+.designation-bloc.compact .designation-texte {
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* Sur la page client, la désignation occupe sa propre cellule : elle a besoin
+   d'air au-dessus et au-dessous. */
+.public-corps td .designation-bloc {
+  padding: 4px 0 8px;
+}
+
+.public-panneau .designation-section {
+  color: #8fb6b9;
+}
+
+.public-panneau .designation-liste li,
+.public-panneau .designation-texte {
+  color: #cfe3e4;
+}
+
+.public-panneau .designation-liste li::before {
+  background: #46757b;
+}

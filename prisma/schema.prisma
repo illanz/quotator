@@ -392,6 +392,9 @@ model DevisLigne {
   animation   Animation? @relation(fields: [animationId], references: [id])
 
   designation       String
+  /// Designation en sections, figee a la creation : c'est elle que composent
+  /// la page client et le PDF.
+  designationStructuree Json?
   prixUnitaireCents Int    @default(0)
   quantite          Float  @default(1)
   tvaPct            Int    @default(20)
