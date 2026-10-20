@@ -311,7 +311,10 @@ enum TypeLigneDevis {
 model Devis {
   id      String @id @default(cuid())
   /// Numero visible, dans la continuite de la serie facturation.pro.
-  numero  Int
+  ///
+  /// Attribue a l'envoi, pas a la creation : un brouillon abandonne ne doit pas
+  /// laisser de trou dans la serie.
+  numero  Int?
   /// Une modification apres envoi cree une version, l'anterieure est conservee.
   version Int    @default(1)
 

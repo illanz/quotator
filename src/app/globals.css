@@ -415,3 +415,171 @@ tr.famille td {
   padding: 48px 24px;
   color: var(--encre-2);
 }
+
+/* ------------------------------------------------------------ saisie de devis */
+
+.colonnes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (min-width: 60rem) {
+  .colonnes {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+  .colonne-apercu {
+    position: sticky;
+    top: 74px;
+  }
+}
+
+.colonne-saisie {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.champs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.champs label,
+.champ-titre {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--encre-2);
+}
+
+label.case {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 9px;
+  font-weight: 500;
+  color: var(--encre);
+  font-size: 0.88rem;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: var(--encre);
+  background: var(--surface);
+  border: 1px solid var(--trait-fort);
+  border-radius: 7px;
+  padding: 7px 9px;
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+  line-height: 1.45;
+}
+
+input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--rose);
+}
+
+.cases {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.prestation {
+  border-top: 1px solid var(--trait);
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+.prestation-tete {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.regle-forfait {
+  margin-top: 6px;
+  font-size: 0.84rem;
+  background: var(--surface-2);
+  border-radius: 7px;
+  padding: 8px 10px;
+}
+
+.lien-discret {
+  border: 0;
+  background: none;
+  color: var(--encre-3);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.lien-discret:hover {
+  color: var(--danger);
+}
+
+.apercu .table-enveloppe {
+  box-shadow: none;
+}
+
+.ligne-option td {
+  color: var(--encre-2);
+  background: var(--surface-2);
+}
+
+.ligne-option .puce {
+  margin-left: 8px;
+}
+
+.totaux {
+  margin: 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.totaux > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.totaux dt {
+  color: var(--encre-2);
+}
+
+.totaux dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.totaux .total-ttc {
+  border-top: 1px solid var(--trait);
+  padding-top: 8px;
+  margin-top: 2px;
+  font-size: 1.05rem;
+}
+
+.totaux .total-ttc dt {
+  color: var(--encre);
+  font-weight: 700;
+}

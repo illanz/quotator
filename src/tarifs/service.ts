@@ -15,7 +15,14 @@ import type { GrilleParsee, LigneGrille } from "./types";
 export async function grilleActive() {
   return prisma.grille.findFirst({
     where: { active: true },
-    include: { lignes: { include: { prix: true }, orderBy: { ligneSource: "asc" } } },
+    include: {
+      lignes: {
+        // L'animation porte la designation vendue ; la ligne de grille ne porte
+        // que le tarif. L'ecran de saisie a besoin des deux.
+        include: { prix: true, animation: true },
+        orderBy: { ligneSource: "asc" },
+      },
+    },
   });
 }
 

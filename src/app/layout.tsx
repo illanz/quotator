@@ -18,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </a>
             <nav className="nav">
               <a href="/">Accueil</a>
+              <a href="/devis/nouveau">Nouveau devis</a>
               <a href="/tarifs">Grille tarifaire</a>
               <a href="/tarifs/import">Import</a>
             </nav>
