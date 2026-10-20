@@ -1,0 +1,11 @@
+[Unit]
+Description=Cycle Quotator — expiration des devis et relances dues
+After=postgresql.service quotator.service
+
+[Service]
+Type=oneshot
+User=quotator
+WorkingDirectory=/opt/quotator
+EnvironmentFile=/opt/quotator/.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npm run cycle

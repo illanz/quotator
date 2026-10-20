@@ -3,7 +3,11 @@ import { BlocDesignation, designationDepuisJson } from "@/app/designation-bloc";
 import { formaterDateLongue } from "@/devis/titre";
 import { formatEuros } from "@/domain/money";
 import { prisma } from "@/lib/prisma";
+import { dateCivile } from "@/domain/calendrier";
+import { etatDepuisDevis } from "@/relance/service";
+import { prochaineRelance } from "@/relance/sequence";
 import BoutonEmettre from "./bouton-emettre";
+import Suivi from "./suivi";
 
 export const dynamic = "force-dynamic";
 
@@ -25,11 +29,26 @@ export default async function PageDevis({ params }: { params: Promise<{ id: stri
     include: {
       organisation: true,
       contact: true,
+      commercial: true,
       lignes: { orderBy: { position: "asc" } },
-      evenements: { orderBy: { creeLe: "desc" }, take: 10 },
+      evenements: { orderBy: { creeLe: "desc" } },
     },
   });
   if (!devis) notFound();
+
+  // La decision se recalcule a l'affichage : elle depend du jour, et un suivi
+  // qui dirait ce qui etait vrai hier n'aurait aucun interet.
+  const evenementsSequence = devis.evenements.filter(
+    (e) => e.type === "OUVERTURE" || e.type === "RELANCE",
+  );
+  const decision = prochaineRelance(
+    etatDepuisDevis({ ...devis, evenements: evenementsSequence }),
+  );
+  const derniereRelance = evenementsSequence.find((e) => e.type === "RELANCE");
+  const rangAtteint =
+    derniereRelance && typeof derniereRelance.donnees === "object" && derniereRelance.donnees
+      ? Number((derniereRelance.donnees as { rang?: unknown }).rang) || 0
+      : 0;
 
   return (
     <>
@@ -121,6 +140,13 @@ export default async function PageDevis({ params }: { params: Promise<{ id: stri
           <dd>{devis.grilleMillesime ?? "—"}</dd>
         </div>
       </dl>
+
+      <Suivi
+        evenements={devis.evenements}
+        decision={decision}
+        envoyeLe={devis.envoyeLe ? dateCivile(devis.envoyeLe) : null}
+        rangAtteint={rangAtteint}
+      />
 
       <div className="barre-actions">
         <BoutonEmettre devisId={devis.id} statut={devis.statut} />

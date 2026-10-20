@@ -60,6 +60,30 @@ Trois principes :
 3. **Le prix n'apparaît jamais dans le corps d'un mail**, conformément à la règle en vigueur. Il
    reste sur le PDF et la page du devis.
 
+### 3bis. Ce qui est construit
+
+La séquence est en place (`src/relance/`) et tourne chaque matin de semaine.
+Trois points s'écartent de la proposition initiale, et méritent d'être connus :
+
+- **La séquence rejoint le calendrier, elle ne déroule pas son retard.** Un
+  client qui ouvre son devis au quinzième jour reçoit le message du quinzième,
+  pas celui du quatrième suivi de celui du huitième deux jours plus tard. Sans
+  cette règle, un lecteur tardif recevait un rattrapage décalé dont chaque
+  message parlait d'un moment déjà passé.
+- **Le principe « jamais deux messages non lus » est mesuré sur les
+  ouvertures**, pas estimé : tant que le client n'a pas rouvert son devis après
+  une relance, la suivante attend quatre jours de plus que sa date.
+- **L'apport de valeur (J+8) puise dans le track record** plutôt que d'attendre
+  une saisie du commercial : « depuis 2022, nous avons animé 11 fois Graffiti
+  pour des entreprises du secteur conseil ». Aucun nom de client n'est cité —
+  personne n'a donné son accord pour figurer dans un courriel de prospection —
+  et la phrase se tait en dessous de trois occurrences dans le secteur, ou dix
+  au total. Une relance plus courte vaut mieux qu'une référence faible.
+
+La règle « le prix n'apparaît jamais dans le corps d'un mail » est tenue par la
+structure et non par la vigilance : le contexte fourni aux modèles ne porte
+aucun montant, et un test le constate sur chaque message.
+
 ## 4. Leviers sur la page publique
 
 ### 4.1 Options interactives

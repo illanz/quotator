@@ -18,7 +18,8 @@
     "db:validate": "prisma validate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "utilisateur": "tsx --env-file=.env scripts/utilisateur.ts"
+    "utilisateur": "tsx --env-file=.env scripts/utilisateur.ts",
+    "cycle": "tsx --env-file=.env scripts/cycle.ts"
   },
   "repository": {
     "type": "git",

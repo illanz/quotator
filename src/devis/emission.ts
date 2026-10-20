@@ -6,6 +6,7 @@
  * au stockage ; ce module n'en est que le bras.
  */
 
+import { formaterDateLongue } from "@/devis/titre";
 import { ajouterJours, dateCivile, type DateISO } from "@/domain/calendrier";
 import { prisma } from "@/lib/prisma";
 import { controlerEmission, type MotifRefus } from "./numerotation";
@@ -69,7 +70,7 @@ export async function emettreDevis(
       data: {
         devisId,
         type: "ENVOI",
-        detail: `Devis n° ${numero} émis, valable jusqu'au ${valableAu}`,
+        detail: `Devis n° ${numero} émis, valable jusqu'au ${formaterDateLongue(valableAu)}`,
         parId: parId ?? null,
       },
     });

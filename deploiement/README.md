@@ -40,8 +40,10 @@ chown -R quotator:quotator /opt/quotator
 cp deploiement/quotator.service /etc/systemd/system/
 cp deploiement/quotator-sauvegarde.service /etc/systemd/system/
 cp deploiement/quotator-sauvegarde.timer /etc/systemd/system/
+cp deploiement/quotator-cycle.service /etc/systemd/system/
+cp deploiement/quotator-cycle.timer /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable --now quotator quotator-sauvegarde.timer
+systemctl enable --now quotator quotator-sauvegarde.timer quotator-cycle.timer
 
 bash deploiement/deployer.sh
 ```
@@ -67,6 +69,22 @@ cd /opt/quotator && bash deploiement/deployer.sh
 Le script sauvegarde la base, récupère la branche, installe, met le schéma à
 jour, compile, redémarre, et vérifie que le service a bien repris. Il échoue
 bruyamment si ce n'est pas le cas.
+
+## Le cycle quotidien
+
+Chaque matin de semaine à 8 h 12, `quotator-cycle.timer` fait passer les devis
+périmés à l'état expiré, puis envoie les relances dues. Il est idempotent : le
+rejouer dans la journée n'envoie rien de plus, puisque chaque relance laisse
+une trace qui fait avancer la séquence.
+
+Pour voir ce qui partirait sans rien envoyer :
+
+```bash
+cd /opt/quotator && npm run cycle -- --blanc
+```
+
+L'expiration est **calculée, jamais planifiée** : un serveur arrêté deux jours
+ne laisse pas des devis périmés à l'état « envoyé ».
 
 ## Sauvegardes
 

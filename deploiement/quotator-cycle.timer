@@ -1,0 +1,12 @@
+[Unit]
+Description=Cycle quotidien Quotator
+
+[Timer]
+# 8 h 12, avant la journée de travail : un client qui ouvre sa messagerie le
+# matin trouve la relance en haut de pile, et le commercial voit l'état de ses
+# devis avant de s'y mettre. Pas sur l'heure ronde, où tout le monde planifie.
+OnCalendar=Mon..Fri *-*-* 08:12:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
