@@ -126,6 +126,9 @@ export default async function PageDevis({ params }: { params: Promise<{ id: stri
             Ouvrir la page client
           </a>
         )}
+        <a className="bouton" href={`/devis/${devis.id}/pdf`} target="_blank">
+          Relire le PDF
+        </a>
         <a className="bouton" href="/devis/nouveau">
           Nouveau devis
         </a>

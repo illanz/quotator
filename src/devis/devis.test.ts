@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { animateursPour, sansAssistants } from "./animateurs";
+import { animateursPour, libelleEffectif, sansAssistants } from "./animateurs";
 import { analyserDesignation, designationEnTexte, rendreDesignation } from "./designation";
 import { composerTitre } from "./titre";
 
@@ -38,6 +38,32 @@ describe("animateursPour", () => {
     expect(sansAssistants("1 coach et 2 assistants MCZ")).toBe("1 coach");
     expect(sansAssistants("6 et 1 assistant MCZ")).toBe("6");
     expect(sansAssistants("1 artiste")).toBe("1 artiste");
+  });
+
+  it("qualifie un effectif réduit à un nombre", () => {
+    // La table d'exploitation n'écrit qu'un chiffre : sur un devis, « 2 » seul
+    // ne dit pas deux quoi.
+    expect(libelleEffectif("2")).toBe("2 animateurs");
+    expect(libelleEffectif("1")).toBe("1 animateur");
+    expect(libelleEffectif("1 (1 coach supp tous les 50 pax)")).toBe(
+      "1 animateur (1 coach supp tous les 50 pax)",
+    );
+    // Quand la source nomme le rôle, elle en dit plus : on n'y touche pas.
+    expect(libelleEffectif("3 chefs")).toBe("3 chefs");
+    expect(libelleEffectif("2 anim. MCZ et 1 anim. Yoga")).toBe("2 anim. MCZ et 1 anim. Yoga");
+  });
+
+  it("annonce un effectif qualifié, assistants retirés", () => {
+    expect(animateursPour("LEGO MANIA", "P30_49")).toEqual({
+      connu: true,
+      effectif: "2 animateurs",
+      effectifComplet: "2",
+    });
+    expect(animateursPour("CLIP DUB", "P120_159")).toEqual({
+      connu: true,
+      effectif: "6 animateurs",
+      effectifComplet: "6 et 1 assistant MCZ",
+    });
   });
 });
 

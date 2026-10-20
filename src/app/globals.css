@@ -807,6 +807,14 @@ input[type="checkbox"] {
   color: #ffffff !important;
 }
 
+/* Le PDF se range avec le contact : c'est ce qu'on emporte, pas ce qu'on lit. */
+.lien-document {
+  margin: 0 0 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #46757b;
+  font-size: 0.85rem;
+}
+
 /* ------------------------------------------------- composition des désignations */
 
 /*

@@ -57,6 +57,9 @@ export default function PanneauClient({
   const [fait, setFait] = useState<string | null>(null);
   const [enCours, demarrer] = useTransition();
 
+  // Un brouillon n'a pas de numero : il ne circule pas en document.
+  const pdfDisponible = statut !== "BROUILLON";
+
   const supplement = options
     .filter((o) => retenues.includes(o.id))
     .reduce((s, o) => s + o.totalHTCents, 0);
@@ -79,7 +82,7 @@ export default function PanneauClient({
       <aside className="public-panneau">
         <h2>Merci</h2>
         <p>{fait}</p>
-        <Contact commercial={commercial} />
+        <Contact commercial={commercial} jeton={jeton} pdfDisponible={pdfDisponible} />
       </aside>
     );
   }
@@ -93,7 +96,7 @@ export default function PanneauClient({
           Vous recevez la facture d&apos;acompte dans les minutes qui viennent. La prestation est
           confirmée à sa réception, et votre chef de projet vous contacte sous 48 heures.
         </p>
-        <Contact commercial={commercial} />
+        <Contact commercial={commercial} jeton={jeton} pdfDisponible={pdfDisponible} />
       </aside>
     );
   }
@@ -106,7 +109,7 @@ export default function PanneauClient({
           C&apos;est noté, sans aucun souci. Si votre projet revient, un message suffit et nous
           repartons de cette base.
         </p>
-        <Contact commercial={commercial} />
+        <Contact commercial={commercial} jeton={jeton} pdfDisponible={pdfDisponible} />
       </aside>
     );
   }
@@ -119,7 +122,7 @@ export default function PanneauClient({
           Nous revenons vers vous avec une proposition ajustée. Vous pouvez nous joindre
           directement si vous souhaitez en parler de vive voix.
         </p>
-        <Contact commercial={commercial} />
+        <Contact commercial={commercial} jeton={jeton} pdfDisponible={pdfDisponible} />
       </aside>
     );
   }
@@ -132,7 +135,7 @@ export default function PanneauClient({
           Les tarifs et les disponibilités doivent être revus. Un message suffit pour obtenir une
           proposition à jour.
         </p>
-        <Contact commercial={commercial} />
+        <Contact commercial={commercial} jeton={jeton} pdfDisponible={pdfDisponible} />
       </aside>
     );
   }
@@ -265,14 +268,37 @@ export default function PanneauClient({
         </div>
       )}
 
-      <Contact commercial={commercial} />
+      <Contact commercial={commercial} jeton={jeton} pdfDisponible={pdfDisponible} />
     </aside>
   );
 }
 
-function Contact({ commercial }: { commercial: Props["commercial"] }) {
+/**
+ * Pied du panneau, present quel que soit l'etat du devis.
+ *
+ * Le PDF y figure a cote du contact plutot qu'en tete : la page suffit a lire
+ * la proposition, le document sert a la transmettre ou a la faire signer. Il
+ * n'est propose que lorsque le devis porte un numero — un brouillon n'engage
+ * personne et n'a pas a circuler.
+ */
+function Contact({
+  commercial,
+  jeton,
+  pdfDisponible,
+}: {
+  commercial: Props["commercial"];
+  jeton: string;
+  pdfDisponible: boolean;
+}) {
   return (
     <div className="bloc-contact">
+      {pdfDisponible && (
+        <p className="lien-document">
+          <a href={`/p/${jeton}/pdf`} target="_blank" rel="noopener">
+            Télécharger le devis au format PDF
+          </a>
+        </p>
+      )}
       <p className="intitule-bloc">Une question&nbsp;?</p>
       <p className="contact-nom">{commercial.nom}</p>
       {commercial.telephone && (

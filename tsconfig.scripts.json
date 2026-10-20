@@ -1,0 +1,11 @@
+{
+  // Les scripts s'executent sous tsx, sans le compilateur de Next.
+  //
+  // Le tsconfig principal laisse le JSX intact (`preserve`), parce que c'est
+  // Next qui le transforme. Hors de Next, il faut nommer la transformation :
+  // sans cela, le rendu du PDF echoue sur un `React is not defined`.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  }
+}

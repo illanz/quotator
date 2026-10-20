@@ -38,6 +38,20 @@ Ces règles priment sur les mentions de la grille Excel quand elles divergent :
 | Périmètre sans frais de déplacement | **75, 92, 93, 94 uniquement** | La grille annonce « toute l'Île-de-France » (ligne 68) : Illan corrigera l'Excel. |
 | Province — bloc VHR | **Saisie manuelle du montant en v1** | Trop de cas particuliers pour codifier (aller-retour dans la journée, etc.). Un calculateur d'aide à la saisie est prévu en étape 2 : km à facturer, nuitées et repas par staff, immobilisation 250 € HT par tranche de 8 h ouvrées **au-delà de la première journée**. |
 
+### Textes du catalogue à corriger côté facturation.pro
+
+Les désignations sont importées telles quelles, et le PDF comme la page client les composent sans
+les réécrire. Trois mentions sont visibles du client et contredisent les règles ci-dessus :
+
+- « Forfait de 1 € HT/km A/R **au départ de Paris 1er** » → le départ facturé est Courbevoie, et
+  la formulation annoncée au client est « Paris > Ville > Paris ».
+- Les descriptions qui annoncent une majoration week-end à 10 % (à aligner sur +15 %).
+- Les descriptions qui annoncent « toute l'Île-de-France » (à réduire à 75, 92, 93, 94).
+
+Deux coquilles de saisie restent également visibles, dont un guillemet ouvrant sans fermante dans
+l'intitulé Graffiti (`Street Art "Graffiti`) : la normalisation typographique ne fabrique pas la
+fermante manquante, pour ne pas inventer ce que le texte ne dit pas.
+
 ## 2. Sources analysées
 
 - `2026_Tarif_Public_MadCityZen.xlsx` — grille officielle, v. 251215, valable au 01/01/2026.
@@ -155,6 +169,19 @@ Points structurants :
 - Coordonnées bancaires Crédit Agricole (IBAN/BIC).
 - Pagination `Page n/N`, en-tête et pied répétés sur chaque page.
 
+**Ce que le générateur produit en plus** (`src/pdf/`) :
+
+- La désignation est composée, pas recopiée : intitulé, sections en petites capitales, listes à
+  puces, typographie française. C'est la structure figée à la création du devis, celle-là même
+  que compose la page client — le PDF et la page ne peuvent pas diverger.
+- Les animations proposées en option sortent du tableau et occupent chacune une page, avec leur
+  supplément et le rappel qu'elles n'entrent pas dans le total.
+- Dernière page : engagement (pas d'option, pas de date tenue), délai de modification du nombre
+  de participants, barème d'annulation, conditions d'exploitation, mentions de règlement,
+  coordonnées bancaires et bloc « bon pour accord ».
+- Le document n'est pas stocké : il est recomposé à la demande à partir des montants enregistrés,
+  jamais recalculés. Un devis émis se réimprime à l'identique après un changement de grille.
+
 ### 3.7 Page publique du devis (maquette fournie)
 
 Le client doit disposer d'un panneau d'actions clair, sur le modèle transmis :
@@ -200,13 +227,16 @@ elle bloque réellement le travail. Rien de ce qui suit n'empêche de démarrer 
 
 Modèle de données, import de la grille et moteur de prix sont entièrement débloqués.
 
-### 5.2 Avant le générateur de PDF
+### 5.2 Le générateur de PDF — fait, sauf un point
 
-1. **Mentions légales** : je reprends telles quelles celles extraites du devis de référence
-   (validité 30 j, règlement à réception, pénalités BCE + 10 pts, indemnité 40 €, escompte aucun,
-   acompte 70 %, RIB Crédit Agricole, note sur les créneaux d'installation). À confirmer, et à
-   compléter : faut-il un bloc « bon pour accord » signable sur le PDF, et un renvoi aux CGV ?
-   Existe-t-il un texte de CGV de référence ?
+Le document est produit (`src/pdf/`). Il reprend les mentions du devis de référence, porte le
+bloc « bon pour accord » que rend nécessaire l'article 3 des CGV, et renvoie aux CGV pour le
+barème d'annulation. Reste à fournir :
+
+1. **Coordonnées bancaires** : l'IBAN et le BIC Crédit Agricole ne figurent nulle part dans le
+   corpus dont je dispose. Le bloc est prévu sur la dernière page du devis et ne s'imprime que
+   lorsque le champ `Parametres.coordonneesBancaires` est rempli — tant qu'il est vide, le devis
+   part sans RIB.
 2. **Devis en anglais** : la grille annonce les animations disponibles en anglais sans surcoût, et
    un titre de devis en anglais figure dans le corpus (`Evening Entertainment / Sept 14, 2026`).
    Faut-il une version anglaise du template PDF et des mails dès la v1, ou plus tard ?

@@ -81,6 +81,24 @@ export function sansAssistants(effectif: string): string {
     .trim();
 }
 
+/**
+ * Qualifie un effectif qui n'est qu'un nombre.
+ *
+ * La table Notion est une table d'exploitation : pour la plupart des
+ * animations, elle n'y porte qu'un chiffre. Recopie tel quel sous un intitule
+ * « STAFF », ce chiffre donne un devis inacheve — le client lit « 2 » sans
+ * savoir deux quoi. La ou la source precise le role (« 1 coach », « 2 anim.
+ * MCZ et 1 anim. Yoga »), elle est laissee intacte : elle en dit plus que le
+ * mot generique.
+ */
+export function libelleEffectif(effectif: string): string {
+  const nu = /^(\d+)(\s*\(.+\))?$/.exec(effectif);
+  if (!nu) return effectif;
+  const nombre = Number(nu[1]);
+  const mot = nombre > 1 ? "animateurs" : "animateur";
+  return `${nombre} ${mot}${nu[2] ?? ""}`;
+}
+
 export type EffectifAnimateurs =
   | { connu: true; effectif: string; effectifComplet: string }
   | { connu: false; raison: "ANIMATION_INCONNUE" | "PALIER_NON_RENSEIGNE" };
@@ -98,5 +116,9 @@ export function animateursPour(cle: string, palier: Palier): EffectifAnimateurs 
   const effectifComplet = ligne.effectifs[PALIERS.indexOf(palier)];
   if (!effectifComplet) return { connu: false, raison: "PALIER_NON_RENSEIGNE" };
 
-  return { connu: true, effectif: sansAssistants(effectifComplet), effectifComplet };
+  return {
+    connu: true,
+    effectif: libelleEffectif(sansAssistants(effectifComplet)),
+    effectifComplet,
+  };
 }
