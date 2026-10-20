@@ -53,6 +53,20 @@ export const VALIDITE_JOURS = 30;
 /** Acompte demande a l'acceptation, en pourcentage du TTC. */
 export const ACOMPTE_PCT = 70;
 
+/**
+ * Rappel d'engagement, porte par le devis, la page publique et les relances.
+ *
+ * MadCityZen ne pose pas d'option et ne tient pas de date : seuls l'acceptation
+ * du devis et le versement de l'acompte engagent les equipes. La mention est
+ * centralisee ici pour qu'aucun texte commercial ne puisse la contredire — une
+ * relance promettant de « bloquer la date » irait contre l'article 3 des
+ * conditions generales de vente.
+ */
+export const MENTION_ENGAGEMENT =
+  "Ce devis ne constitue pas une réservation. Nous ne posons pas d'option : " +
+  "seuls l'acceptation du devis et le versement de l'acompte garantissent la " +
+  "disponibilité de nos équipes à la date retenue.";
+
 /** Premier numero emis par l'outil, dans la continuite de facturation.pro. */
 export const PREMIER_NUMERO_DEVIS = 19803;
 

@@ -25,6 +25,7 @@ sources, et points encore ouverts. Il est mis à jour à chaque décision.
 | Migration | Reprise des 7 551 clients de facturation.pro, avec dédoublonnage. |
 | Dropbox | Écarté pour le moment. Les PDF vivent dans l'outil. |
 | Domaine | `app.madcityzen.fr` (accès à définir ultérieurement). |
+| Engagement | **Aucune option, aucune tenue de date.** Seuls l'acceptation du devis et le versement de l'acompte garantissent la disponibilité des équipes. La mention figure sur le devis, la page publique et les relances. |
 
 ## 1bis. Règles de prix arbitrées
 

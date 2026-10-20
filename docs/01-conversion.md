@@ -84,13 +84,23 @@ pré-cochés : budget, date indisponible, nombre de participants différent, aut
 souhaitée, projet reporté, choix d'un concurrent, autre. C'est la donnée qui manque aujourd'hui
 complètement : sans elle, on ne sait pas pourquoi 89 % des devis ne se concrétisent pas.
 
-### 4.4 Réservation de date sans engagement
+### 4.4 Le rappel d'engagement, énoncé franchement
 
-Levier à arbitrer : proposer au client de bloquer gratuitement la date pendant 7 jours, sans
-acompte. Cela crée une échéance réelle plutôt qu'une pression commerciale artificielle, et cela
-répond à l'objection principale d'un acompte de 70 % du TTC — élevé pour une première commande.
-Alternative à considérer : abaisser l'acompte à 30-40 % pour les nouveaux clients, le solde à
-J-7 de l'événement.
+**Décision prise : MadCityZen ne pose pas d'option et ne tient pas de date.** Seuls l'acceptation
+du devis et le versement de l'acompte engagent les équipes.
+
+J'avais proposé l'inverse — un blocage gratuit de sept jours. C'est écarté, et la position retenue
+a le mérite d'être nette : elle n'offre pas une tenue de date qu'il faudrait ensuite honorer sur
+un planning déjà tendu en novembre et décembre.
+
+La mention figure sur le devis, sur la page publique et dans les relances, dans une formulation
+unique tenue en un seul endroit du code (`MENTION_ENGAGEMENT`). C'est volontaire : un texte
+commercial qui promettrait de « bloquer la date » contredirait l'article 3 des conditions
+générales, et ce genre de contradiction se découvre toujours au pire moment.
+
+Cela déplace l'argument de la relance : la rareté n'est pas une faveur accordée, c'est un
+calendrier qui se remplit. Le levier n'est plus « nous vous gardons la place », mais « la place
+part, et seule votre décision la retient ».
 
 ## 5. Copy des mails
 
@@ -207,15 +217,17 @@ Bien à vous,
 ```
 Bonjour {{prenom}},
 
-Un mot sur le calendrier : nos équipes d'animation se réservent au fur et à mesure,
-et la période autour du {{date_event}} commence à se remplir.
+Un mot sur le calendrier : nos équipes d'animation s'engagent au fur et à mesure
+des accords, et la période autour du {{date_event}} se remplit.
 
-Si votre projet se confirme, le plus simple est de nous le dire dès maintenant :
-nous bloquons vos animateurs, sans que cela vous engage définitivement.
+Pour être transparent : nous ne posons pas d'option et ne tenons pas de date.
+Seuls votre accord sur le devis et le versement de l'acompte réservent nos
+équipes. Tant que ce n'est pas fait, la date reste ouverte à d'autres.
 
 {{lien_devis}}
 
-Et si la date a bougé, dites-le moi, je regarde ce qui reste ouvert.
+Si votre projet se confirme, le plus simple est de valider en ligne. Et si la
+date a bougé, dites-le moi : je regarde ce qui reste disponible.
 
 Bien à vous,
 {{commercial}}
