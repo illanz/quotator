@@ -85,12 +85,9 @@ export function DocumentDevis({ devis }: { devis: DevisPdf }) {
         <Prestations devis={devis} />
         <Totaux devis={devis} />
         <Echeancier devis={devis} />
-
-        {devis.options.map((option, i) => (
-          <VueOption key={i} option={option} rang={i + 1} total={devis.options.length} />
-        ))}
-
+        <Options devis={devis} />
         <Conditions devis={devis} />
+        <PourCommander devis={devis} />
       </Page>
     </Document>
   );
@@ -306,6 +303,17 @@ function Totaux({ devis }: { devis: DevisPdf }) {
         <Text style={styles.totalFortLibelle}>TOTAL TTC</Text>
         <Text style={styles.totalFortValeur}>{formatEuros(devis.totalTTCCents)}</Text>
       </View>
+
+      {/* Le lecteur qui ne regarde que le total doit savoir que la proposition
+          ne s'arrete pas la. */}
+      {devis.options.length > 0 && (
+        <Text style={styles.appelOptions}>
+          {devis.options.length > 1
+            ? `${devis.options.length} animations complémentaires vous sont proposées ci-après`
+            : "Une animation complémentaire vous est proposée ci-après"}
+          , hors de ce total.
+        </Text>
+      )}
     </View>
   );
 }
@@ -340,32 +348,87 @@ function Echeancier({ devis }: { devis: DevisPdf }) {
 // -------------------------------------------------------------------- options
 
 /**
- * Une animation proposee en option, sur sa propre page.
+ * Les animations proposees en option.
  *
  * C'est la convention maison : au-dela de la premiere animation, chaque
- * proposition est presentee seule, avec son prix, et n'entre pas dans le total.
- * Le client arbitre entre des propositions plutot qu'entre oui et non.
+ * proposition est presentee hors du total, pour que le client arbitre entre des
+ * propositions plutot qu'entre oui et non.
+ *
+ * Elles suivent la proposition ferme dans le fil du document, sans saut de
+ * page : une page separee, sans rien qui l'annonce, ne serait jamais ouverte.
+ * La scission se fait par un bandeau et des filets, et un sommaire donne les
+ * noms et les montants avant le detail — de quoi decider sans lire.
  */
+function Options({ devis }: { devis: DevisPdf }) {
+  if (devis.options.length === 0) return null;
+  const multiple = devis.options.length > 1;
+
+  return (
+    <View style={styles.optionsSection}>
+      <View style={styles.optionsBandeau} wrap={false}>
+        <Text style={styles.optionsBandeauTitre}>
+          {multiple ? "Animations proposées en option" : "Animation proposée en option"}
+        </Text>
+        <Text style={styles.optionsBandeauTexte}>
+          {multiple
+            ? "Ces animations ne sont pas comprises dans le total ci-avant. Chacune s'y ajoute si vous la retenez, et peut être retenue indépendamment des autres."
+            : "Cette animation n'est pas comprise dans le total ci-avant. Elle s'y ajoute si vous la retenez."}
+        </Text>
+      </View>
+
+      {/* Le sommaire n'a de sens qu'a plusieurs : avec une seule option, il
+          repeterait mot pour mot l'intitule qui le suit. A plusieurs, il donne
+          les noms et les montants avant le detail — de quoi decider sans lire. */}
+      {multiple && (
+        <View style={styles.optionsSommaire}>
+          {devis.options.map((option, i) => (
+            <View key={i} style={styles.optionsSommaireLigne} wrap={false}>
+              <Text style={styles.optionsSommaireNom}>{intituleCourt(option.principale)}</Text>
+              <Text style={styles.optionsSommairePrix}>
+                + {formatEuros(option.totalHTCents)} HT
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {devis.options.map((option, i) => (
+        <VueOption
+          key={i}
+          option={option}
+          rang={multiple ? i + 1 : null}
+          total={devis.options.length}
+        />
+      ))}
+    </View>
+  );
+}
+
+/** Nom de l'animation seul, pour le sommaire : la designation entiere y tiendrait mal. */
+function intituleCourt(ligne: OptionPdf["principale"]): string {
+  const brut = ligne.structure?.intitule ?? ligne.designation.split("\n")[0] ?? ligne.designation;
+  return normaliserTypographie(brut);
+}
+
 function VueOption({
   option,
   rang,
   total,
 }: {
   option: OptionPdf;
-  rang: number;
+  /** `null` quand l'option est seule : la numeroter n'apprendrait rien. */
+  rang: number | null;
   total: number;
 }) {
   return (
-    <View break>
-      <View style={styles.optionEnTete}>
-        <Text style={styles.optionEtiquette}>
-          ANIMATION PROPOSÉE EN OPTION {rang} / {total}
-        </Text>
-        <Text style={[styles.contexte, styles.optionCorps]}>
-          Cette animation n&apos;est pas comprise dans le total ci-avant. Elle s&apos;y ajoute si
-          vous la retenez.
-        </Text>
-      </View>
+    <View style={styles.option}>
+      {rang !== null && (
+        <View style={styles.optionEnTete} wrap={false}>
+          <Text style={styles.optionEtiquette}>
+            OPTION {rang} / {total}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.optionCorps}>
         {option.principale.structure ? (
@@ -401,8 +464,10 @@ function VueOption({
 // ----------------------------------------------------------------- conditions
 
 function Conditions({ devis }: { devis: DevisPdf }) {
+  // Pas de saut de page : le document se lit d'un trait, et les conditions ne
+  // sont pas une annexe. Les intitules de section suffisent a les demarquer.
   return (
-    <View break>
+    <View style={styles.conditions}>
       <Text style={styles.sectionTitre}>CE À QUOI VOUS VOUS ENGAGEZ</Text>
 
       <View style={styles.encadre}>
@@ -449,14 +514,56 @@ function Conditions({ devis }: { devis: DevisPdf }) {
         ))}
       </View>
 
-      {devis.coordonneesBancaires && (
-        <View style={styles.banque}>
-          <Text style={styles.blocSectionTitre}>Coordonnées bancaires</Text>
-          <Text style={styles.banqueTexte}>{devis.coordonneesBancaires}</Text>
+    </View>
+  );
+}
+
+/**
+ * Derniere page : comment commander, et ou payer.
+ *
+ * C'est la seule page sur laquelle un saut est delibere. Elle est annoncee par
+ * tout ce qui precede, et c'est celle que le client imprime pour la signer :
+ * elle doit rester entiere, et ne rien porter d'autre que l'acte d'achat et
+ * les coordonnees de reglement.
+ */
+function PourCommander({ devis }: { devis: DevisPdf }) {
+  return (
+    <View break>
+      <Text style={styles.sectionTitre}>POUR COMMANDER</Text>
+      <BonPourAccord devis={devis} />
+      {devis.banque && <Banque banque={devis.banque} />}
+    </View>
+  );
+}
+
+/**
+ * Coordonnees bancaires.
+ *
+ * L'IBAN est imprime en groupes de quatre, comme sur un releve : c'est sous
+ * cette forme que le client le recopiera dans sa banque, et chaque groupe de
+ * moins est une occasion d'erreur de saisie en plus.
+ */
+function Banque({ banque }: { banque: NonNullable<DevisPdf["banque"]> }) {
+  const etablissement = [banque.banque, banque.domiciliation].filter(Boolean).join(" — ");
+
+  return (
+    <View style={styles.banque} wrap={false}>
+      <Text style={styles.blocSectionTitre}>Coordonnées bancaires</Text>
+      {etablissement !== "" && <Text style={styles.banqueTexte}>{etablissement}</Text>}
+      <View style={styles.banqueLigne}>
+        <Text style={styles.banqueEtiquette}>IBAN</Text>
+        <Text style={styles.banqueValeur}>{banque.iban}</Text>
+      </View>
+      {banque.bic && (
+        <View style={styles.banqueLigne}>
+          <Text style={styles.banqueEtiquette}>BIC</Text>
+          <Text style={styles.banqueValeur}>{banque.bic}</Text>
         </View>
       )}
-
-      <BonPourAccord devis={devis} />
+      <Text style={[styles.banqueTexte, { marginTop: 4 }]}>
+        Titulaire&nbsp;: {SOCIETE.raisonSociale}, {SOCIETE.adresse}, {SOCIETE.codePostal}{" "}
+        {SOCIETE.ville}
+      </Text>
     </View>
   );
 }
@@ -472,7 +579,6 @@ function Conditions({ devis }: { devis: DevisPdf }) {
 function BonPourAccord({ devis }: { devis: DevisPdf }) {
   return (
     <View style={styles.section} wrap={false}>
-      <Text style={styles.sectionTitre}>BON POUR ACCORD</Text>
       <View style={styles.accord}>
         <View style={styles.accordColonne}>
           <Text style={styles.accordConsigne}>

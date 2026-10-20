@@ -144,7 +144,7 @@ export const styles = StyleSheet.create({
 
   // ------------------------------------------------------------------ sections
 
-  section: { marginBottom: 18 },
+  section: { marginBottom: 15 },
   sectionTitre: {
     fontSize: 7,
     lineHeight: 1.3,
@@ -224,7 +224,64 @@ export const styles = StyleSheet.create({
 
   // ------------------------------------------------------------------- options
 
-  optionEnTete: { marginBottom: 12 },
+  /**
+   * Appel sous le total.
+   *
+   * Les animations complementaires suivent dans le fil du document, mais c'est
+   * sur le total que l'oeil s'arrete : sans un mot a cet endroit, elles
+   * resteraient invisibles de qui ne fait que verifier le montant.
+   */
+  appelOptions: {
+    marginTop: 7,
+    paddingTop: 6,
+    borderTopWidth: 0.75,
+    borderTopColor: COULEURS.filet,
+    fontSize: 8,
+    lineHeight: 1.45,
+    color: COULEURS.accent,
+  },
+
+  // La scission avec la proposition ferme doit se voir : un filet plein, un
+  // bandeau teinte, et de l'air au-dessus.
+  optionsSection: { marginTop: 10, marginBottom: 18 },
+  optionsBandeau: {
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    backgroundColor: COULEURS.fond,
+    borderLeftWidth: 2.5,
+    borderLeftColor: COULEURS.accent,
+  },
+  optionsBandeauTitre: {
+    fontSize: 8,
+    lineHeight: 1.3,
+    fontWeight: 700,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  optionsBandeauTexte: {
+    fontSize: 8,
+    lineHeight: 1.45,
+    color: COULEURS.secondaire,
+    marginTop: 2,
+  },
+  optionsSommaire: { marginTop: 8, marginBottom: 4 },
+  optionsSommaireLigne: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 3,
+    borderBottomWidth: 0.75,
+    borderBottomColor: COULEURS.filet,
+  },
+  optionsSommaireNom: { flex: 1, fontSize: 9, lineHeight: 1.4, paddingRight: 10 },
+  optionsSommairePrix: { fontSize: 9, lineHeight: 1.4, fontWeight: 700, textAlign: "right" },
+
+  option: {
+    marginTop: 16,
+    paddingTop: 10,
+    borderTopWidth: 0.75,
+    borderTopColor: COULEURS.filetFort,
+  },
+  optionEnTete: { marginBottom: 10 },
   // Sans colonne de prix a sa droite, la designation d'une option occuperait
   // toute la largeur de la page : une ligne de cent caracteres se lit mal. La
   // mesure reste celle des prestations fermes.
@@ -234,19 +291,27 @@ export const styles = StyleSheet.create({
     lineHeight: 1.3,
     letterSpacing: 1.1,
     color: COULEURS.accent,
-    marginBottom: 4,
   },
   optionPrix: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "baseline",
-    marginTop: 12,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: COULEURS.filetFort,
+    marginTop: 10,
+    paddingTop: 7,
+    borderTopWidth: 0.75,
+    borderTopColor: COULEURS.filet,
   },
   optionPrixLibelle: { fontSize: 9, lineHeight: 1.4, color: COULEURS.secondaire },
   optionPrixValeur: { fontSize: 12, lineHeight: 1.3, fontWeight: 700 },
+
+  // Ferme la partie commerciale et ouvre les conditions : sans cette coupure,
+  // le prix d'une option et le premier engagement se suivent sans transition.
+  conditions: {
+    marginTop: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: COULEURS.filetFort,
+  },
 
   // ------------------------------------------------------- encadres et mentions
 
@@ -264,9 +329,19 @@ export const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 0.75,
     borderColor: COULEURS.filet,
-    marginBottom: 14,
+    marginBottom: 12,
   },
-  banqueTexte: { fontSize: 8.5, lineHeight: 1.5 },
+  banqueTexte: { fontSize: 8.5, lineHeight: 1.5, color: COULEURS.secondaire },
+  banqueLigne: { flexDirection: "row", alignItems: "baseline", marginTop: 3 },
+  banqueEtiquette: {
+    width: 34,
+    fontSize: 6.5,
+    lineHeight: 1.6,
+    letterSpacing: 1,
+    color: COULEURS.discret,
+  },
+  // L'IBAN se lit chiffre a chiffre : un peu d'approche le rend recopiable.
+  banqueValeur: { fontSize: 10, lineHeight: 1.4, fontWeight: 700, letterSpacing: 0.4 },
 
   // ------------------------------------------------------------ bon pour accord
 
@@ -280,10 +355,10 @@ export const styles = StyleSheet.create({
   accordConsigne: { fontSize: 8, lineHeight: 1.45, color: COULEURS.secondaire },
   accordCadre: {
     marginTop: 8,
-    height: 92,
+    height: 78,
     borderWidth: 0.75,
     borderColor: COULEURS.filetFort,
     padding: 8,
   },
-  accordChamp: { fontSize: 7.5, lineHeight: 1.35, color: COULEURS.discret, marginBottom: 14 },
+  accordChamp: { fontSize: 7.5, lineHeight: 1.35, color: COULEURS.discret, marginBottom: 11 },
 });

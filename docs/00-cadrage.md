@@ -38,19 +38,26 @@ Ces règles priment sur les mentions de la grille Excel quand elles divergent :
 | Périmètre sans frais de déplacement | **75, 92, 93, 94 uniquement** | La grille annonce « toute l'Île-de-France » (ligne 68) : Illan corrigera l'Excel. |
 | Province — bloc VHR | **Saisie manuelle du montant en v1** | Trop de cas particuliers pour codifier (aller-retour dans la journée, etc.). Un calculateur d'aide à la saisie est prévu en étape 2 : km à facturer, nuitées et repas par staff, immobilisation 250 € HT par tranche de 8 h ouvrées **au-delà de la première journée**. |
 
-### Textes du catalogue à corriger côté facturation.pro
+### Mentions du catalogue redressées au rendu
 
-Les désignations sont importées telles quelles, et le PDF comme la page client les composent sans
-les réécrire. Trois mentions sont visibles du client et contredisent les règles ci-dessus :
+Les désignations viennent de facturation.pro et portent des règles qui ne sont plus celles
+appliquées. Deux d'entre elles sont lues par le client et constituent des engagements : elles sont
+corrigées au rendu, à partir des constantes de `regles.ts` (`src/devis/mentions.ts`), pour que le
+devis dise la même chose que le moteur de prix.
 
-- « Forfait de 1 € HT/km A/R **au départ de Paris 1er** » → le départ facturé est Courbevoie, et
-  la formulation annoncée au client est « Paris > Ville > Paris ».
-- Les descriptions qui annoncent une majoration week-end à 10 % (à aligner sur +15 %).
-- Les descriptions qui annoncent « toute l'Île-de-France » (à réduire à 75, 92, 93, 94).
+| Mention héritée | Occurrences | Ce qui est imprimé |
+|---|---|---|
+| « au départ de Paris 1er » | 37 descriptions | « au départ de **Paris** » — le calcul part de Courbevoie, le client lit « Paris > Ville > Paris » |
+| « petite couronne (92, 93, 94) » | 2 descriptions | « petite couronne (**75**, 92, 93, 94) » — l'omission de Paris facturait des frais indus à un client parisien |
 
-Deux coquilles de saisie restent également visibles, dont un guillemet ouvrant sans fermante dans
-l'intitulé Graffiti (`Street Art "Graffiti`) : la normalisation typographique ne fabrique pas la
-fermante manquante, pour ne pas inventer ce que le texte ne dit pas.
+Rien d'autre n'est réécrit : le catalogue reste la source du contenu, et le module ne redresse que
+ce qui se vérifie contre une règle. Corriger les textes dans facturation.pro reste souhaitable,
+mais plus aucun devis ne part avec une mention fausse en attendant.
+
+**Reste à corriger à la main** : les descriptions qui annoncent une majoration week-end à 10 %
+(à aligner sur +15 %), et un guillemet ouvrant sans fermante dans l'intitulé Graffiti
+(`Street Art "Graffiti`) — la normalisation typographique ne fabrique pas la fermante manquante,
+pour ne pas inventer ce que le texte ne dit pas.
 
 ## 2. Sources analysées
 
@@ -174,11 +181,16 @@ Points structurants :
 - La désignation est composée, pas recopiée : intitulé, sections en petites capitales, listes à
   puces, typographie française. C'est la structure figée à la création du devis, celle-là même
   que compose la page client — le PDF et la page ne peuvent pas diverger.
-- Les animations proposées en option sortent du tableau et occupent chacune une page, avec leur
-  supplément et le rappel qu'elles n'entrent pas dans le total.
-- Dernière page : engagement (pas d'option, pas de date tenue), délai de modification du nombre
-  de participants, barème d'annulation, conditions d'exploitation, mentions de règlement,
-  coordonnées bancaires et bloc « bon pour accord ».
+- Les animations proposées en option sortent du tableau mais **restent dans le fil du document**,
+  sans saut de page : une page séparée, que rien n'annonce, ne serait jamais ouverte. La scission
+  se fait par un bandeau teinté et des filets ; une ligne sous le TOTAL TTC — là où l'œil
+  s'arrête — signale qu'elles suivent ; et à partir de deux options, un sommaire donne les noms et
+  les montants avant le détail, de quoi décider sans lire.
+- Conditions à la suite : engagement (pas d'option, pas de date tenue), délai de modification du
+  nombre de participants, barème d'annulation, conditions d'exploitation, mentions de règlement.
+- **Dernière page, « Pour commander »** : c'est le seul saut de page délibéré. Elle ne porte que
+  l'acte d'achat — bloc « bon pour accord » à signer, rappel de la validation en ligne — et les
+  coordonnées bancaires. C'est la page que le client imprime.
 - Le document n'est pas stocké : il est recomposé à la demande à partir des montants enregistrés,
   jamais recalculés. Un devis émis se réimprime à l'identique après un changement de grille.
 
@@ -227,17 +239,24 @@ elle bloque réellement le travail. Rien de ce qui suit n'empêche de démarrer 
 
 Modèle de données, import de la grille et moteur de prix sont entièrement débloqués.
 
-### 5.2 Le générateur de PDF — fait, sauf un point
+### 5.2 Le générateur de PDF — fait
 
 Le document est produit (`src/pdf/`). Il reprend les mentions du devis de référence, porte le
-bloc « bon pour accord » que rend nécessaire l'article 3 des CGV, et renvoie aux CGV pour le
-barème d'annulation. Reste à fournir :
+bloc « bon pour accord » que rend nécessaire l'article 3 des CGV, renvoie aux CGV pour le barème
+d'annulation, et imprime les coordonnées bancaires.
 
-1. **Coordonnées bancaires** : l'IBAN et le BIC Crédit Agricole ne figurent nulle part dans le
-   corpus dont je dispose. Le bloc est prévu sur la dernière page du devis et ne s'imprime que
-   lorsque le champ `Parametres.coordonneesBancaires` est rempli — tant qu'il est vide, le devis
-   part sans RIB.
-2. **Devis en anglais** : la grille annonce les animations disponibles en anglais sans surcoût, et
+Celles-ci vivent en base (`Parametres`), pas dans le dépôt : un RIB figure sur chaque devis
+envoyé, mais n'a rien à faire dans l'historique d'un dépôt Git. Elles se (ré)enregistrent en une
+commande, et l'IBAN est refusé si sa clé de contrôle ne tombe pas juste :
+
+```
+npm run banque -- --iban "FR76 …" --bic AGRIFRPP882 \
+  --banque "Crédit Agricole d'Île-de-France" --domiciliation "La Garenne-Colombes"
+```
+
+Reste ouvert :
+
+1. **Devis en anglais** : la grille annonce les animations disponibles en anglais sans surcoût, et
    un titre de devis en anglais figure dans le corpus (`Evening Entertainment / Sept 14, 2026`).
    Faut-il une version anglaise du template PDF et des mails dès la v1, ou plus tard ?
 

@@ -455,7 +455,17 @@ model Parametres {
   codePostal    String @default("75001")
   ville         String @default("PARIS")
   mentionsPied  String?
-  coordonneesBancaires String?
+
+  /// Coordonnees bancaires portees par le devis et la facture d'acompte.
+  ///
+  /// En champs distincts plutot qu'en texte libre : l'IBAN est verifie et mis
+  /// en forme a l'affichage, et un IBAN mal recopie sur un devis, c'est un
+  /// acompte qui n'arrive jamais. Elles ne sont pas dans le code : une fois
+  /// saisies, elles vivent en base.
+  banque        String?
+  domiciliation String?
+  iban          String?
+  bic           String?
 
   /// Prochain numero a emettre.
   prochainNumero Int @default(19803)

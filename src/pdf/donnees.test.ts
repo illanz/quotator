@@ -165,6 +165,30 @@ describe("composerDevisPdf", () => {
     expect(resultat.fermes.map((l) => l.structure?.intitule ?? null)).toEqual(["A", null, null]);
   });
 
+  it("n'imprime des coordonnées bancaires que si l'IBAN tombe juste", () => {
+    const bonnes = {
+      banque: "Crédit Agricole d'Île-de-France",
+      domiciliation: "La Garenne-Colombes",
+      iban: "FR7618206002666025200001733",
+      bic: "agrifrpp882",
+    };
+    const resultat = composerDevisPdf(devis([]), bonnes);
+    expect(resultat.banque).toEqual({
+      banque: "Crédit Agricole d'Île-de-France",
+      domiciliation: "La Garenne-Colombes",
+      // Mis en forme comme sur un relevé : c'est ainsi qu'il sera recopié.
+      iban: "FR76 1820 6002 6660 2520 0001 733",
+      bic: "AGRIFRPP882",
+    });
+
+    // Mieux vaut un devis sans RIB qu'un devis portant un IBAN faux : le
+    // premier se rattrape d'un courriel, le second coûte un virement perdu.
+    expect(composerDevisPdf(devis([]), { ...bonnes, iban: "FR7618206002666025200001737" }).banque)
+      .toBeNull();
+    expect(composerDevisPdf(devis([]), { ...bonnes, iban: null }).banque).toBeNull();
+    expect(composerDevisPdf(devis([]), null).banque).toBeNull();
+  });
+
   it("compose l'adresse du client à partir de son établissement", () => {
     const resultat = composerDevisPdf(
       devis([], {

@@ -10,6 +10,7 @@
  */
 
 import type { Designation } from "@/devis/designation";
+import { formaterIban, ibanValide } from "@/domain/iban";
 import type { TypeLigne } from "@/pricing/engine";
 
 export type LignePdf = {
@@ -100,8 +101,43 @@ export type DevisPdf = {
   totalOptionsHTCents: number;
   acompteCents: number;
   soldeCents: number;
-  coordonneesBancaires: string | null;
+  banque: CoordonneesBancaires | null;
 };
+
+export type CoordonneesBancaires = {
+  banque: string | null;
+  domiciliation: string | null;
+  /** Deja verifie et mis en forme : le document ne fait que l'imprimer. */
+  iban: string;
+  bic: string | null;
+};
+
+export type ParametresSource = {
+  banque: string | null;
+  domiciliation: string | null;
+  iban: string | null;
+  bic: string | null;
+};
+
+/**
+ * Coordonnees bancaires imprimables.
+ *
+ * Un IBAN qui ne passe pas la cle de controle n'est pas imprime : mieux vaut un
+ * devis sans RIB, que le commercial transmettra autrement, qu'un devis portant
+ * un IBAN faux. Le controle est fait ici, et non au rendu, pour qu'un test le
+ * couvre sans avoir a composer un PDF.
+ */
+function coordonneesBancaires(
+  parametres: ParametresSource | null,
+): CoordonneesBancaires | null {
+  if (!parametres?.iban || !ibanValide(parametres.iban)) return null;
+  return {
+    banque: parametres.banque,
+    domiciliation: parametres.domiciliation,
+    iban: formaterIban(parametres.iban),
+    bic: parametres.bic ? parametres.bic.replace(/\s+/g, "").toUpperCase() : null,
+  };
+}
 
 /** Structure stockee sur la ligne, relue sans confiance aveugle. */
 function structureDe(valeur: unknown): Designation | null {
@@ -156,7 +192,7 @@ function libelleContact(contact: DevisSource["contact"]): string | null {
  */
 export function composerDevisPdf(
   devis: DevisSource,
-  parametres: { coordonneesBancaires: string | null } | null,
+  parametres: ParametresSource | null,
 ): DevisPdf {
   const visibles = devis.lignes.filter((l) => l.type !== "SAUT_PAGE" && l.type !== "TITRE");
 
@@ -220,6 +256,6 @@ export function composerDevisPdf(
     totalOptionsHTCents: options.reduce((s, o) => s + o.totalHTCents, 0),
     acompteCents: devis.acompteCents,
     soldeCents: devis.totalTTCCents - devis.acompteCents,
-    coordonneesBancaires: parametres?.coordonneesBancaires ?? null,
+    banque: coordonneesBancaires(parametres),
   };
 }

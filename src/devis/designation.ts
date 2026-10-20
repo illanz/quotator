@@ -12,6 +12,8 @@
  * decidee par le gabarit, pas heritee du texte source.
  */
 
+import { normaliserMentions } from "./mentions";
+
 export type SectionDesignation = {
   /** Intitule de section en capitales, ou `null` pour le corps introductif. */
   intitule: string | null;
@@ -109,7 +111,9 @@ export type ResultatRendu = {
 };
 
 function remplir(texte: string, contexte: ContexteRendu, aCompleter: Set<string>): string {
-  let resultat = texte;
+  // Les mentions qui contredisent une regle arbitree sont redressees avant tout
+  // le reste : c'est ce texte-la qui sera fige sur la ligne de devis.
+  let resultat = normaliserMentions(texte);
 
   for (const { motif, valeur, libelle } of MARQUEURS) {
     const remplacement = valeur(contexte);
